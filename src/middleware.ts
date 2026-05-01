@@ -6,9 +6,11 @@ export default async function middleware(req: NextRequest) {
   const isAdmin = path.startsWith("/admin");
   const isCheckout = path.startsWith("/checkout");
 
+  const secret =
+    process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
   const token = await getToken({
     req,
-    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    secret,
   });
   const isLoggedIn = Boolean(token?.sub);
   const role = (token?.role as "user" | "admin" | undefined) ?? "user";
