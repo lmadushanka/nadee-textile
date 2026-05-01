@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongodb";
 import { Cart } from "@/models/Cart";
-import { Order } from "@/models/Order";
+import { Order, type OrderLine } from "@/models/Order";
 import { Product } from "@/models/Product";
 
 export async function GET() {
@@ -31,7 +31,7 @@ export async function GET() {
         shippingAddress: o.shippingAddress,
         shippingCity: o.shippingCity,
         lines: Array.isArray(o.lines)
-          ? o.lines.map((line) => ({
+          ? (o.lines as OrderLine[]).map((line) => ({
               name: line.name,
               unitPrice: Number(line.unitPrice ?? 0),
               quantity: Number(line.quantity ?? 0),

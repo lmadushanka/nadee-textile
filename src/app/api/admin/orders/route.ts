@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { requireAdminSession } from "@/lib/admin-auth";
-import { Order } from "@/models/Order";
+import { Order, type OrderLine } from "@/models/Order";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +28,7 @@ export async function GET() {
         shippingAddress: o.shippingAddress,
         shippingCity: o.shippingCity,
         lines: Array.isArray(o.lines)
-          ? o.lines.map((line) => ({
+          ? (o.lines as OrderLine[]).map((line) => ({
               name: line.name,
               unitPrice: Number(line.unitPrice ?? 0),
               quantity: Number(line.quantity ?? 0),

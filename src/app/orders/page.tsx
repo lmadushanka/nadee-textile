@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongodb";
-import { Order } from "@/models/Order";
+import { Order, type OrderLine } from "@/models/Order";
 import { Types } from "mongoose";
 
 export const metadata: Metadata = {
@@ -89,7 +89,8 @@ export default async function OrdersPage() {
               </div>
 
               <div className="mt-4 grid gap-3">
-                {(Array.isArray(order.lines) ? order.lines : []).map((line, i) => (
+                {(Array.isArray(order.lines) ? (order.lines as OrderLine[]) : []).map(
+                  (line, i) => (
                   <div
                     key={`${line.name}-${i}`}
                     className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--paper)]/60 p-3"
