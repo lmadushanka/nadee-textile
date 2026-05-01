@@ -1,33 +1,22 @@
-import { getToken } from "next-auth/jwt";
 import { NextResponse, type NextRequest } from "next/server";
 
-export default async function middleware(req: NextRequest) {
-  const path = req.nextUrl.pathname;
-  const isAdmin = path.startsWith("/admin");
-  const isCheckout = path.startsWith("/checkout");
-
-  const secret =
-    process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
-  const token = await getToken({
-    req,
-    secret,
-  });
-  const isLoggedIn = Boolean(token?.sub);
-  const role = (token?.role as "user" | "admin" | undefined) ?? "user";
-
-  if (!isLoggedIn && (isAdmin || isCheckout)) {
-    const url = new URL("/login", req.url);
-    url.searchParams.set("callbackUrl", path + req.nextUrl.search);
-    return NextResponse.redirect(url);
-  }
-
-  if (isAdmin && role !== "admin") {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
-  return NextResponse.next();
+/**
+ * Do not verify JWT here: Edge middleware bundles env at **build** time, while the
+ * Node server reads `AUTH_SECRET` at **runtime** (e.g. Cloud Run). Using `getToken`
+ * here caused signed-in users to look logged out and loop on `/login`.
+ *
+ * Admin auth runs in `admin/layout.tsx` via `auth()` (Node / RSC).
+ * Checkout already uses `auth()` in `checkout/page.tsx`.
+ *
+ * We only forward the current path so login can return to deep admin links.
+ */
+export function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname + req.nextUrl.search;
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-nadee-login-callback", path);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/checkout", "/checkout/:path*"],
+  matcher: ["/admin", "/admin/:path*"],
 };
