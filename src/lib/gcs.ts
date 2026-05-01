@@ -1,10 +1,40 @@
 import crypto from "crypto";
+import fs from "fs";
 import path from "path";
 import { Storage } from "@google-cloud/storage";
 
 function envValue(name: string) {
   const v = process.env[name]?.trim();
   return v ? v : null;
+}
+
+function parseServiceAccountJson(raw: string) {
+  try {
+    const parsed = JSON.parse(raw) as {
+      client_email?: string;
+      private_key?: string;
+      project_id?: string;
+    };
+    if (!parsed.client_email || !parsed.private_key) {
+      throw new Error(
+        "GOOGLE_CLOUD_CREDENTIALS_JSON must include client_email and private_key.",
+      );
+    }
+    let privateKey = parsed.private_key;
+    if (privateKey.includes("\\n")) {
+      privateKey = privateKey.replace(/\\n/g, "\n");
+    }
+    return {
+      client_email: parsed.client_email,
+      private_key: privateKey,
+      project_id: parsed.project_id,
+    };
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      throw new Error("GOOGLE_CLOUD_CREDENTIALS_JSON is not valid JSON.");
+    }
+    throw e;
+  }
 }
 
 function getStorage() {
@@ -15,11 +45,7 @@ function getStorage() {
     envValue("GOOGLE_APPLICATION_CREDENTIALS");
 
   if (credentialsJson) {
-    const credentials = JSON.parse(credentialsJson) as {
-      client_email: string;
-      private_key: string;
-      project_id?: string;
-    };
+    const credentials = parseServiceAccountJson(credentialsJson);
     return new Storage({
       projectId: projectId ?? credentials.project_id,
       credentials: {
@@ -33,12 +59,18 @@ function getStorage() {
     const resolved = path.isAbsolute(keyFile)
       ? keyFile
       : path.resolve(/* turbopackIgnore: true */ process.cwd(), keyFile);
+    if (!fs.existsSync(resolved)) {
+      throw new Error(
+        `GCS key file not found at ${resolved}. On Cloud Run use Secret Manager env GOOGLE_CLOUD_CREDENTIALS_JSON, mount a secret as a file, or grant the Cloud Run service account access to the bucket (ADC) and omit the key file.`,
+      );
+    }
     return new Storage({
       projectId: projectId ?? undefined,
       keyFilename: resolved,
     });
   }
 
+  // Cloud Run / GCE: Application Default Credentials (runtime service account).
   return new Storage({
     projectId: projectId ?? undefined,
   });
@@ -78,9 +110,16 @@ export async function uploadImageToBucket(file: File) {
     },
   });
 
-  // This requires public object access; if your bucket policy blocks it,
-  // keep object private and use signed URLs in a future step.
-  await blob.makePublic();
+  // Buckets with uniform bucket-level access cannot use per-object ACLs; use bucket IAM
+  // (e.g. allUsers: Storage Object Viewer) for public reads instead.
+  try {
+    await blob.makePublic();
+  } catch (aclErr) {
+    console.warn(
+      "[gcs] makePublic failed (often OK if the bucket uses IAM-only public read):",
+      aclErr instanceof Error ? aclErr.message : aclErr,
+    );
+  }
 
   return {
     objectPath,

@@ -35,7 +35,8 @@ export async function POST(request: Request) {
     const uploaded = await uploadImageToBucket(maybeFile);
     return NextResponse.json({ ok: true, url: uploaded.publicUrl });
   } catch (e) {
-    console.error("[admin-upload]", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[admin-upload]", msg, e);
     return NextResponse.json(
       { error: "Upload failed. Check GCS credentials and bucket settings." },
       { status: 500 },
