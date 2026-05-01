@@ -9,6 +9,8 @@ RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# .env.local is not copied (.dockerignore). Set AUTH_SECRET (and MONGODB_URI, etc.)
+# on Cloud Run / runtime — not required during `npm run build` after auth.ts build-phase handling.
 FROM base AS builder
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules

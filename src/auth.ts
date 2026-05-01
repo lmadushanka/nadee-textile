@@ -10,6 +10,14 @@ function authSecret(): string {
   if (fromEnv) {
     return fromEnv;
   }
+  // `next build` runs with NODE_ENV=production but Docker/CI often has no .env;
+  // secrets belong at runtime (e.g. Cloud Run), not baked into the image.
+  const isNextProductionBuild =
+    process.env.NODE_ENV === "production" &&
+    process.env.npm_lifecycle_event === "build";
+  if (isNextProductionBuild) {
+    return "next-build-placeholder-secret-not-used-at-runtime-min-32-chars-xx";
+  }
   if (process.env.NODE_ENV === "production") {
     throw new Error(
       "Set AUTH_SECRET (or NEXTAUTH_SECRET) in the environment for production.",
