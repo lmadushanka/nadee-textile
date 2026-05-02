@@ -19,6 +19,8 @@ export type OrderDoc = {
   shippingAddress: string;
   shippingCity: string;
   status: "placed" | "processing" | "shipped" | "cancelled";
+  /** Set when status is shipped; shown to the customer */
+  trackingNumber?: string;
 };
 
 const OrderLineSchema = new Schema<OrderLine>(
@@ -48,6 +50,7 @@ const OrderSchema = new Schema<OrderDoc>(
       enum: ["placed", "processing", "shipped", "cancelled"],
       default: "placed",
     },
+    trackingNumber: { type: String, trim: true, maxlength: 120 },
   },
   { timestamps: true },
 );

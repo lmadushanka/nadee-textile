@@ -33,7 +33,7 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <div className="w-full px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <p className="text-sm text-[var(--muted)]">
         <Link href="/products" className="font-semibold text-[var(--accent)] hover:underline">
           Products

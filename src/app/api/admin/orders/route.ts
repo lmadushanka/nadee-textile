@@ -22,6 +22,10 @@ export async function GET() {
         userId: String(o.userId),
         total: Number(o.total ?? 0),
         status: o.status,
+        trackingNumber:
+          typeof o.trackingNumber === "string" && o.trackingNumber.trim().length > 0
+            ? o.trackingNumber.trim()
+            : null,
         createdAt: o.createdAt,
         shippingName: o.shippingName,
         shippingPhone: o.shippingPhone,

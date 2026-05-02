@@ -34,8 +34,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-      <div className="grid gap-5 lg:grid-cols-[240px_1fr] lg:gap-8">
+    <div className="w-full min-w-0 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <div className="grid min-w-0 gap-5 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8">
         <AdminSidebar />
         <section className="min-w-0">{children}</section>
       </div>

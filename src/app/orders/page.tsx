@@ -38,7 +38,7 @@ export default async function OrdersPage() {
     .exec();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <div className="w-full px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <h1 className="font-display text-3xl font-semibold text-[var(--ink)]">
         My orders
       </h1>
@@ -87,6 +87,26 @@ export default async function OrdersPage() {
                   </p>
                 </div>
               </div>
+
+              {(() => {
+                const tracking =
+                  String(order.status) === "shipped"
+                    ? String(
+                        (order as { trackingNumber?: string | null }).trackingNumber ?? "",
+                      ).trim()
+                    : "";
+                if (!tracking) return null;
+                return (
+                  <div className="mt-4 rounded-xl border border-emerald-200/80 bg-emerald-50/60 px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                      Tracking number
+                    </p>
+                    <p className="mt-1 break-all font-mono text-sm font-medium text-[var(--ink)]">
+                      {tracking}
+                    </p>
+                  </div>
+                );
+              })()}
 
               <div className="mt-4 grid gap-3">
                 {(Array.isArray(order.lines) ? (order.lines as OrderLine[]) : []).map(

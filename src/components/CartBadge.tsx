@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function sumQty(items: { quantity: number }[]) {
@@ -8,6 +9,8 @@ function sumQty(items: { quantity: number }[]) {
 }
 
 export function CartBadge() {
+  const pathname = usePathname();
+  const cartActive = pathname === "/cart" || pathname.startsWith("/cart/");
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -27,7 +30,12 @@ export function CartBadge() {
   return (
     <Link
       href="/cart"
-      className="relative rounded-md px-3 py-2 text-sm font-medium text-[var(--muted)] transition hover:bg-black/[0.04] hover:text-[var(--ink)]"
+      aria-current={cartActive ? "page" : undefined}
+      className={`relative rounded-full px-3 py-2.5 text-sm font-medium transition ${
+        cartActive
+          ? "bg-[#0c1222] text-white hover:bg-[#151d33]"
+          : "text-[#1a202c] hover:bg-zinc-100"
+      }`}
     >
       Cart
       {count > 0 ? (

@@ -4,7 +4,7 @@ import Image from "next/image";
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-white/10 bg-[var(--ink)] text-zinc-300">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
+      <div className="grid w-full gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div>
           <div className="flex items-center">
             <Image
@@ -39,6 +39,11 @@ export function Footer() {
             <li>
               <Link className="hover:text-white" href="/products">
                 Products
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-white" href="/contact">
+                Contact
               </Link>
             </li>
             <li>

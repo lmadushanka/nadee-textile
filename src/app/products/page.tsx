@@ -39,7 +39,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <div className="w-full px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <header className="max-w-2xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
           Catalog

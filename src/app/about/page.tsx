@@ -12,7 +12,7 @@ export default function AboutPage() {
   return (
     <div>
       <section className="border-b border-[var(--border)] bg-white/80">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="w-full px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
             About nadee-textile
           </p>
@@ -29,7 +29,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <section className="w-full px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
           <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-zinc-100">
             <Image
@@ -64,7 +64,7 @@ export default function AboutPage() {
       </section>
 
       <section className="border-y border-[var(--border)] bg-[var(--accent-deep)] py-16 text-white lg:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-2xl font-semibold sm:text-3xl">
             What we stand for
           </h2>
@@ -97,7 +97,7 @@ export default function AboutPage() {
       </section>
 
       <section className="border-y border-[var(--border)] bg-white/70 py-16 lg:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
             Location &amp; contact
           </p>
@@ -140,7 +140,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-24">
+      <section className="w-full px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-24">
         <h2 className="font-display text-2xl font-semibold text-[var(--ink)] sm:text-3xl">
           Ready to browse the catalog?
         </h2>
