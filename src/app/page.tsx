@@ -88,11 +88,12 @@ export default async function Home() {
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
             <Image
-              src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&q=80"
+              src="/img1.jpeg"
               alt="Fabric and tailoring"
               fill
               className="object-cover"
               sizes="(max-width:1024px) 100vw, 50vw"
+              priority
             />
           </div>
           <div>

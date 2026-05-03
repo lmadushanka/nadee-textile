@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { CartBadge } from "@/components/CartBadge";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLocale } from "@/components/LocaleProvider";
 import { SignOutButton } from "@/components/SignOutButton";
 
 export type FloatingSiteHeaderProps = {
@@ -14,12 +16,12 @@ export type FloatingSiteHeaderProps = {
 };
 
 /** Main nav order: Home → Products → About → Contact; Orders (when signed in) follows. */
-const NAV: { label: string; href: string }[] = [
-  { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
+const NAV_KEYS = [
+  { key: "nav.home", href: "/" },
+  { key: "nav.products", href: "/products" },
+  { key: "nav.about", href: "/about" },
+  { key: "nav.contact", href: "/contact" },
+] as const;
 
 function routeActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -138,6 +140,7 @@ export function FloatingSiteHeader({
   isAdmin,
   userLabel,
 }: FloatingSiteHeaderProps) {
+  const { t } = useLocale();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -157,6 +160,8 @@ export function FloatingSiteHeader({
   const iconBtnIdle = "border-zinc-200 hover:bg-zinc-50";
   const iconBtnActive = "border-[#0c1222] bg-[#0c1222] text-white hover:bg-[#151d33]";
 
+  const brandAlt = t("nav.brandAlt");
+
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-[100] px-2 pt-2 sm:px-3 sm:pt-3 lg:px-4 lg:pt-4">
       <div className="pointer-events-auto flex w-full max-w-none min-h-[3.75rem] items-center gap-2 rounded-[100px] bg-white py-3 pl-3 pr-2 shadow-[0_12px_40px_rgba(0,0,0,0.1)] ring-1 ring-black/[0.06] sm:min-h-[4.25rem] sm:gap-3 sm:py-3.5 sm:pl-5 sm:pr-3 md:pl-6">
@@ -171,7 +176,7 @@ export function FloatingSiteHeader({
         >
           <Image
             src="/logo.png"
-            alt="Nadee Textile"
+            alt={brandAlt}
             width={48}
             height={48}
             className="h-11 w-auto sm:h-12"
@@ -180,16 +185,16 @@ export function FloatingSiteHeader({
         </Link>
 
         <nav className="ml-1 hidden min-h-0 flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-1">
-          {NAV.map((item) => {
+          {NAV_KEYS.map((item) => {
             const active = routeActive(pathname, item.href);
             return (
               <Link
-                key={item.label}
+                key={item.key}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={`${pillNavBase} ${active ? pillNavActive : pillNavIdle}`}
               >
-                {item.label}
+                {t(item.key)}
               </Link>
             );
           })}
@@ -201,7 +206,7 @@ export function FloatingSiteHeader({
                 routeActive(pathname, "/orders") ? pillNavActive : pillNavIdle
               }`}
             >
-              Orders
+              {t("nav.orders")}
             </Link>
           ) : null}
           {isAdmin ? (
@@ -212,18 +217,18 @@ export function FloatingSiteHeader({
                 routeActive(pathname, "/admin") ? pillNavAdminActive : "text-amber-900 hover:bg-amber-50"
               }`}
             >
-              Admin
+              {t("nav.admin")}
             </Link>
           ) : null}
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
           <Link
             href="/products"
             className={`${iconBtn} ${
               routeActive(pathname, "/products") ? iconBtnActive : iconBtnIdle
             }`}
-            aria-label="Search catalog"
+            aria-label={t("nav.searchCatalog")}
             aria-current={routeActive(pathname, "/products") ? "page" : undefined}
           >
             <SearchIcon className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
@@ -249,7 +254,7 @@ export function FloatingSiteHeader({
                   pathname === "/login" ? pillNavActive : "text-[#1a202c] hover:bg-zinc-100"
                 }`}
               >
-                Log in
+                {t("nav.logIn")}
               </Link>
               <Link
                 href="/register"
@@ -260,21 +265,22 @@ export function FloatingSiteHeader({
                     : "text-[#1a202c] hover:bg-zinc-100"
                 }`}
               >
-                Register
+                {t("nav.register")}
               </Link>
             </>
           )}
+          <LanguageSwitcher className="hidden min-[360px]:inline-flex lg:inline-flex" />
           <Link
             href="/contact"
             aria-current={routeActive(pathname, "/contact") ? "page" : undefined}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] shadow-sm transition sm:px-6 sm:py-3 sm:text-[11px] ${
+            className={`inline-flex min-w-0 shrink items-center gap-1.5 rounded-full px-3 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] shadow-sm transition sm:px-6 sm:py-3 sm:text-[11px] ${
               routeActive(pathname, "/contact")
                 ? "bg-[#e8d040] text-[#0c1222] ring-2 ring-[#0c1222]/25 hover:bg-[#dfc938]"
                 : "bg-[#ffeb7a] text-[#0c1222] hover:bg-[#f5e000]"
             }`}
           >
-            Contact us
-            <span aria-hidden className="text-sm leading-none">
+            <span className="truncate">{t("nav.contactUs")}</span>
+            <span aria-hidden className="shrink-0 text-sm leading-none">
               →
             </span>
           </Link>
@@ -284,7 +290,7 @@ export function FloatingSiteHeader({
             className={`${iconBtn} lg:hidden ${
               routeActive(pathname, "/cart") ? iconBtnActive : iconBtnIdle
             }`}
-            aria-label="Cart"
+            aria-label={t("nav.cart")}
             aria-current={routeActive(pathname, "/cart") ? "page" : undefined}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -295,7 +301,7 @@ export function FloatingSiteHeader({
           <button
             type="button"
             className={`${iconBtn} lg:hidden`}
-            aria-label="Open menu"
+            aria-label={t("nav.openMenu")}
             onClick={() => setDrawerOpen(true)}
           >
             <MenuIcon />
@@ -308,7 +314,7 @@ export function FloatingSiteHeader({
           <button
             type="button"
             className="absolute inset-0 bg-black/45 backdrop-blur-sm"
-            aria-label="Close menu"
+            aria-label={t("nav.closeMenu")}
             onClick={closeDrawer}
           />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100%,380px)] flex-col bg-white shadow-2xl">
@@ -316,7 +322,7 @@ export function FloatingSiteHeader({
               <Link href="/" className="flex items-center" onClick={closeDrawer}>
                 <Image
                   src="/logo.png"
-                  alt="Nadee Textile"
+                  alt={brandAlt}
                   width={44}
                   height={44}
                   className="h-11 w-auto"
@@ -326,18 +332,22 @@ export function FloatingSiteHeader({
                 type="button"
                 onClick={closeDrawer}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#ffeb7a] text-[#0c1222] shadow-sm"
-                aria-label="Close"
+                aria-label={t("nav.close")}
               >
                 <CloseIcon />
               </button>
             </div>
 
+            <div className="border-b border-zinc-100 px-5 py-3">
+              <LanguageSwitcher variant="block" />
+            </div>
+
             <nav className="flex-1 overflow-y-auto px-5 py-2">
-              {NAV.map((item) => {
+              {NAV_KEYS.map((item) => {
                 const active = routeActive(pathname, item.href);
                 return (
                   <Link
-                    key={item.label}
+                    key={item.key}
                     href={item.href}
                     onClick={closeDrawer}
                     aria-current={active ? "page" : undefined}
@@ -345,7 +355,7 @@ export function FloatingSiteHeader({
                       active ? drawerNavActive : drawerNavIdle
                     }`}
                   >
-                    {item.label}
+                    {t(item.key)}
                   </Link>
                 );
               })}
@@ -361,7 +371,7 @@ export function FloatingSiteHeader({
                       : drawerNavIdle
                   }`}
                 >
-                  Orders
+                  {t("nav.orders")}
                 </Link>
               ) : null}
               {isAdmin ? (
@@ -375,7 +385,7 @@ export function FloatingSiteHeader({
                       : "text-amber-900"
                   }`}
                 >
-                  Admin
+                  {t("nav.admin")}
                 </Link>
               ) : null}
               {!isLoggedIn ? (
@@ -388,7 +398,7 @@ export function FloatingSiteHeader({
                       pathname === "/login" ? drawerNavActive : drawerNavIdle
                     }`}
                   >
-                    Log in
+                    {t("nav.logIn")}
                   </Link>
                   <Link
                     href="/register"
@@ -398,7 +408,7 @@ export function FloatingSiteHeader({
                       pathname === "/register" ? drawerNavActive : drawerNavIdle
                     }`}
                   >
-                    Register
+                    {t("nav.register")}
                   </Link>
                 </>
               ) : (
@@ -407,15 +417,11 @@ export function FloatingSiteHeader({
                 </div>
               )}
 
-              <p className="mt-8 text-sm font-bold text-[#0c1222]">Contact info</p>
+              <p className="mt-8 text-sm font-bold text-[#0c1222]">{t("drawer.contactInfo")}</p>
               <ul className="mt-4 space-y-4 text-sm text-zinc-600">
                 <li className="flex gap-3">
                   <PinIcon />
-                  <span>
-                    No 2/A, Yaya 7,
-                    <br />
-                    Morakatiya, Embilipitiya
-                  </span>
+                  <span>{t("drawer.address")}</span>
                 </li>
                 <li className="flex gap-3">
                   <MailIcon />
@@ -425,7 +431,7 @@ export function FloatingSiteHeader({
                 </li>
                 <li className="flex gap-3">
                   <ClockIcon />
-                  <span>Mon–Friday, 09am – 05pm</span>
+                  <span>{t("drawer.hours")}</span>
                 </li>
                 <li className="flex gap-3">
                   <PhoneIcon />
@@ -440,7 +446,7 @@ export function FloatingSiteHeader({
                 onClick={closeDrawer}
                 className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-[#ffeb7a] py-3.5 text-sm font-bold uppercase tracking-wide text-[#0c1222] shadow-sm"
               >
-                Shop now
+                {t("drawer.shopNow")}
                 <span aria-hidden>↗</span>
               </Link>
             </nav>

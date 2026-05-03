@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useLocale } from "@/components/LocaleProvider";
 
 function sumQty(items: { quantity: number }[]) {
   return items.reduce((a, i) => a + i.quantity, 0);
 }
 
 export function CartBadge() {
+  const { t } = useLocale();
   const pathname = usePathname();
   const cartActive = pathname === "/cart" || pathname.startsWith("/cart/");
   const [count, setCount] = useState(0);
@@ -37,7 +39,7 @@ export function CartBadge() {
           : "text-[#1a202c] hover:bg-zinc-100"
       }`}
     >
-      Cart
+      {t("nav.cart")}
       {count > 0 ? (
         <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--accent)] px-1 text-[11px] font-bold text-white">
           {count > 99 ? "99+" : count}

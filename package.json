@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/copy-gcs-credentials.mjs",
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx src/scripts/seed.ts"

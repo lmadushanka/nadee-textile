@@ -14,7 +14,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
+  /* Noto Sans Sinhala first site-wide (Latin + සිංහල); DM Sans as Latin polish fallback */
+  --font-sans: var(--font-noto-sinhala), var(--font-dm), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
@@ -23,8 +24,16 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Tamil: prefer Tamil glyphs, then same Sinhala-capable stack */
+html[lang="ta"] body {
+  font-family: var(--font-noto-tamil), var(--font-noto-sinhala), var(--font-dm), ui-sans-serif,
+    system-ui, sans-serif;
+}
+
+/* Display: Playfair for Latin; Indic scripts fall through to Noto (Tamil before Sinhala for ta text) */
 .font-display {
-  font-family: var(--font-display), ui-serif, Georgia, "Times New Roman", serif;
+  font-family: var(--font-display), var(--font-noto-tamil), var(--font-noto-sinhala), ui-serif,
+    Georgia, "Times New Roman", serif;
 }
 
 @keyframes nadee-toast-enter {

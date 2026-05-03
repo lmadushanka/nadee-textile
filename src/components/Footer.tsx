@@ -1,7 +1,13 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { useLocale } from "@/components/LocaleProvider";
 
 export function Footer() {
+  const { t } = useLocale();
+  const year = new Date().getFullYear();
+
   return (
     <footer className="mt-auto border-t border-white/10 bg-[var(--ink)] text-zinc-300">
       <div className="grid w-full gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
@@ -9,54 +15,46 @@ export function Footer() {
           <div className="flex items-center">
             <Image
               src="/logo.png"
-              alt="Nadee Textile"
+              alt={t("nav.brandAlt")}
               width={120}
               height={40}
               className="h-9 w-auto max-w-[180px]"
             />
           </div>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-400">
-            Garments and basics built for everyday wear—honest materials, fair
-            construction, and a focus on pieces you will reach for again and
-            again.
-          </p>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-400">{t("footer.tagline")}</p>
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
-            Explore
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-wider text-zinc-500">{t("footer.explore")}</p>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
               <Link className="hover:text-white" href="/">
-                Home
+                {t("nav.home")}
               </Link>
             </li>
             <li>
               <Link className="hover:text-white" href="/about">
-                About
+                {t("nav.about")}
               </Link>
             </li>
             <li>
               <Link className="hover:text-white" href="/products">
-                Products
+                {t("nav.products")}
               </Link>
             </li>
             <li>
               <Link className="hover:text-white" href="/contact">
-                Contact
+                {t("nav.contact")}
               </Link>
             </li>
             <li>
               <Link className="hover:text-white" href="/cart">
-                Cart
+                {t("nav.cart")}
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
-            Contact
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-wider text-zinc-500">{t("footer.contact")}</p>
           <p className="mt-4 text-sm leading-relaxed text-zinc-400">
             Nadee Textile
             <br />
@@ -73,7 +71,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10 py-6 text-center text-xs text-zinc-500">
-        © {new Date().getFullYear()} nadee-textile. All rights reserved.
+        © {year} nadee-textile. {t("footer.rights")}
       </div>
     </footer>
   );

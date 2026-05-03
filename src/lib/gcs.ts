@@ -59,15 +59,17 @@ function getStorage() {
     const resolved = path.isAbsolute(keyFile)
       ? keyFile
       : path.resolve(/* turbopackIgnore: true */ process.cwd(), keyFile);
-    if (!fs.existsSync(resolved)) {
-      throw new Error(
-        `GCS key file not found at ${resolved}. On Cloud Run use Secret Manager env GOOGLE_CLOUD_CREDENTIALS_JSON, mount a secret as a file, or grant the Cloud Run service account access to the bucket (ADC) and omit the key file.`,
-      );
+    if (fs.existsSync(resolved)) {
+      return new Storage({
+        projectId: projectId ?? undefined,
+        keyFilename: resolved,
+      });
     }
-    return new Storage({
-      projectId: projectId ?? undefined,
-      keyFilename: resolved,
-    });
+    console.warn(
+      `[gcs] Key file not found at ${resolved} — using Application Default Credentials. ` +
+        "On Cloud Run, grant the runtime service account Storage access on the bucket, " +
+        "or set GOOGLE_CLOUD_CREDENTIALS_JSON / mount a secret file.",
+    );
   }
 
   // Cloud Run / GCE: Application Default Credentials (runtime service account).

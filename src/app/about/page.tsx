@@ -33,8 +33,8 @@ export default function AboutPage() {
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
           <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-zinc-100">
             <Image
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80"
-              alt="Studio rail of garments"
+              src="/img2.jpeg"
+              alt="Nadee Textile — our store and garments"
               fill
               className="object-cover"
               sizes="(max-width:1024px) 100vw, 50vw"
