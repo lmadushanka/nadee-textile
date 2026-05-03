@@ -62,10 +62,10 @@ function SearchIcon({ className }: { className?: string }) {
 
 function MenuIcon() {
   return (
-    <span className="flex flex-col gap-1">
-      <span className="block h-0.5 w-5 rounded-full bg-[#0c1222]" />
-      <span className="block h-0.5 w-5 rounded-full bg-[#0c1222]" />
-      <span className="block h-0.5 w-5 rounded-full bg-[#0c1222]" />
+    <span className="flex flex-col justify-center gap-[5px]" aria-hidden>
+      <span className="block h-[3px] w-[22px] shrink-0 rounded-full bg-[#0c1222]" />
+      <span className="block h-[3px] w-[22px] shrink-0 rounded-full bg-[#0c1222]" />
+      <span className="block h-[3px] w-[22px] shrink-0 rounded-full bg-[#0c1222]" />
     </span>
   );
 }
@@ -270,20 +270,6 @@ export function FloatingSiteHeader({
             </>
           )}
           <LanguageSwitcher className="hidden min-[360px]:inline-flex lg:inline-flex" />
-          <Link
-            href="/contact"
-            aria-current={routeActive(pathname, "/contact") ? "page" : undefined}
-            className={`inline-flex min-w-0 shrink items-center gap-1.5 rounded-full px-3 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] shadow-sm transition sm:px-6 sm:py-3 sm:text-[11px] ${
-              routeActive(pathname, "/contact")
-                ? "bg-[#e8d040] text-[#0c1222] ring-2 ring-[#0c1222]/25 hover:bg-[#dfc938]"
-                : "bg-[#ffeb7a] text-[#0c1222] hover:bg-[#f5e000]"
-            }`}
-          >
-            <span className="truncate">{t("nav.contactUs")}</span>
-            <span aria-hidden className="shrink-0 text-sm leading-none">
-              →
-            </span>
-          </Link>
 
           <Link
             href="/cart"
@@ -300,8 +286,9 @@ export function FloatingSiteHeader({
 
           <button
             type="button"
-            className={`${iconBtn} lg:hidden`}
+            className={`${iconBtn} lg:hidden border-2 border-[#0c1222]/25 bg-white shadow-[0_2px_8px_rgba(12,18,34,0.12)] ring-1 ring-black/[0.06] hover:border-[#0c1222]/40 hover:bg-zinc-50`}
             aria-label={t("nav.openMenu")}
+            aria-expanded={drawerOpen}
             onClick={() => setDrawerOpen(true)}
           >
             <MenuIcon />
