@@ -1,16 +1,29 @@
-import Image from "next/image";
 import Link from "next/link";
+import { FabricMindsetSection } from "@/components/home/FabricMindsetSection";
 import { FeaturedPieces } from "@/components/home/FeaturedPieces";
 import { HomeHero } from "@/components/home/HomeHero";
-import { getProducts } from "@/lib/products";
 import { getCategories } from "@/lib/categories";
+import { getProducts } from "@/lib/products";
+import type { ResolvedSiteSettings } from "@/lib/site-settings-defaults";
+import { DEFAULT_SITE_SETTINGS, getResolvedSiteSettings } from "@/lib/site-settings";
+
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   let featured: Awaited<ReturnType<typeof getProducts>> = [];
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
+  let site: ResolvedSiteSettings = { ...DEFAULT_SITE_SETTINGS };
   try {
-    featured = await getProducts({ featured: true, limit: 3 });
+    site = await getResolvedSiteSettings();
+  } catch {
+    site = { ...DEFAULT_SITE_SETTINGS };
+  }
+
+  try {
+    featured = await getProducts({
+      featured: true,
+      limit: site.featuredProductLimit,
+    });
   } catch {
     featured = [];
   }
@@ -19,10 +32,15 @@ export default async function Home() {
   } catch {
     categories = [];
   }
-
   return (
     <>
-      <HomeHero />
+      <HomeHero
+        heroEyebrow={site.heroEyebrow}
+        heroTitlePrimary={site.heroTitlePrimary}
+        heroTitleAccent={site.heroTitleAccent}
+        heroSubtitle={site.heroSubtitle}
+        heroSlides={site.heroSlides}
+      />
 
       <section className="w-full px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         {categories.length > 0 ? (
@@ -82,58 +100,24 @@ export default async function Home() {
         </div>
       </section>
 
-      <FeaturedPieces products={featured} />
+      <FeaturedPieces
+        products={featured}
+        featuredEyebrow={site.featuredEyebrow}
+        featuredTitleLead={site.featuredTitleLead}
+        featuredTitleAccent={site.featuredTitleAccent}
+        featuredSubtitle={site.featuredSubtitle}
+        featuredCtaLabel={site.featuredCtaLabel}
+        featuredCtaHref={site.featuredCtaHref}
+        featuredEmptyTitle={site.featuredEmptyTitle}
+        featuredEmptyBody={site.featuredEmptyBody}
+      />
 
-      <section className="w-full px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
-            <Image
-              src="/img1.jpeg"
-              alt="Fabric and tailoring"
-              fill
-              className="object-cover"
-              sizes="(max-width:1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
-          <div>
-            <h2 className="font-display text-3xl font-semibold text-[var(--ink)] sm:text-4xl">
-              Fabric-first mindset
-            </h2>
-            <p className="mt-4 text-[var(--muted)] leading-relaxed">
-              We care how garments look and how they last. From drape and
-              breathability to shape retention after many washes, each piece is
-              selected for real-world wear.
-            </p>
-            <dl className="mt-10 grid grid-cols-3 gap-6 border-t border-[var(--border)] pt-10">
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                  Focus
-                </dt>
-                <dd className="mt-1 font-display text-2xl font-semibold text-[var(--ink)]">
-                  Quality
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                  Range
-                </dt>
-                <dd className="mt-1 font-display text-2xl font-semibold text-[var(--ink)]">
-                  Apparel
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                  Name
-                </dt>
-                <dd className="mt-1 font-display text-2xl font-semibold text-[var(--ink)]">
-                  nadee
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-      </section>
+      <FabricMindsetSection
+        fabricImageSrc={site.fabricImageSrc}
+        fabricImageAlt={site.fabricImageAlt}
+        fabricTitle={site.fabricTitle}
+        fabricSubtitle={site.fabricSubtitle}
+      />
     </>
   );
 }

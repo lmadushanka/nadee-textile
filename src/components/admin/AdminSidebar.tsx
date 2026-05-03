@@ -2,21 +2,39 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const menu = [
+const primaryLinks = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/products/new", label: "Add Product" },
   { href: "/admin/categories", label: "Categories" },
-];
+] as const;
+
+const settingsChildren = [
+  { href: "/admin/settings/fabric", label: "Fabric" },
+  { href: "/admin/settings/hero", label: "Hero" },
+  { href: "/admin/settings/featured", label: "Featured" },
+  { href: "/admin/settings/products", label: "Products" },
+  { href: "/admin/settings/about", label: "About" },
+  { href: "/admin/settings/contact", label: "Contact" },
+] as const;
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const underSettings = pathname.startsWith("/admin/settings");
+  const [settingsOpen, setSettingsOpen] = useState(underSettings);
+
+  useEffect(() => {
+    if (underSettings) setSettingsOpen(true);
+  }, [underSettings]);
+
+  const settingsActive = settingsChildren.some((c) => pathname === c.href);
+
   return (
     <nav className="space-y-1">
-      {menu.map((item) => {
+      {primaryLinks.map((item) => {
         const active = pathname === item.href;
         return (
           <Link
@@ -33,6 +51,48 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
           </Link>
         );
       })}
+
+      <div className="pt-1">
+        <button
+          type="button"
+          onClick={() => setSettingsOpen((o) => !o)}
+          aria-expanded={settingsOpen}
+          className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
+            settingsActive && !settingsOpen
+              ? "bg-[var(--accent-deep)]/15 text-[var(--accent-deep)]"
+              : "text-[var(--ink)] hover:bg-[var(--paper)]"
+          }`}
+        >
+          <span>Settings</span>
+          <span
+            className={`text-xs text-[var(--muted)] transition ${settingsOpen ? "rotate-90" : ""}`}
+            aria-hidden
+          >
+            ›
+          </span>
+        </button>
+        {settingsOpen ? (
+          <div className="ml-2 mt-1 space-y-0.5 border-l border-[var(--border)] pl-2">
+            {settingsChildren.map((c) => {
+              const active = pathname === c.href;
+              return (
+                <Link
+                  key={c.href}
+                  href={c.href}
+                  onClick={onNavigate}
+                  className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
+                    active
+                      ? "bg-[var(--accent-deep)] text-white"
+                      : "text-[var(--ink)] hover:bg-[var(--paper)]"
+                  }`}
+                >
+                  {c.label}
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
     </nav>
   );
 }

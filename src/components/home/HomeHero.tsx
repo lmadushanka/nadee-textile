@@ -3,27 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import type { HomeHeroSettings } from "@/lib/site-settings-defaults";
 
 const SLIDE_INTERVAL_MS = 5500;
-
-const HERO_SLIDES = [
-  {
-    src: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=2400&q=80",
-    alt: "Fashion retail floor with clothing displays",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1467043198406-dc953a3defa7?auto=format&fit=crop&w=2400&q=80",
-    alt: "Garments and apparel on display",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2400&q=80",
-    alt: "Studio rail of garments and textiles",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=2400&q=80",
-    alt: "Apparel product and fabric detail",
-  },
-] as const;
 
 function subscribePrefersReducedMotion(onChange: () => void) {
   if (typeof window === "undefined") return () => {};
@@ -89,7 +71,17 @@ function SocialIconLinks() {
   );
 }
 
-export function HomeHero() {
+type Props = HomeHeroSettings;
+
+export function HomeHero({
+  heroEyebrow,
+  heroTitlePrimary,
+  heroTitleAccent,
+  heroSubtitle,
+  heroSlides,
+}: Props) {
+  const slides = heroSlides.length > 0 ? heroSlides : [];
+  const slidesKey = slides.map((s) => `${s.src}|${s.alt}`).join(";");
   const [active, setActive] = useState(0);
   const prefersReducedMotion = useSyncExternalStore(
     subscribePrefersReducedMotion,
@@ -99,19 +91,27 @@ export function HomeHero() {
   const motionOk = !prefersReducedMotion;
 
   useEffect(() => {
-    if (!motionOk || HERO_SLIDES.length <= 1) return;
+    setActive(0);
+  }, [slidesKey]);
+
+  useEffect(() => {
+    if (!motionOk || slides.length <= 1) return;
     const id = window.setInterval(() => {
-      setActive((i) => (i + 1) % HERO_SLIDES.length);
+      setActive((i) => (i + 1) % slides.length);
     }, SLIDE_INTERVAL_MS);
     return () => window.clearInterval(id);
-  }, [motionOk]);
+  }, [motionOk, slides.length, slidesKey]);
+
+  if (slides.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative isolate min-h-[100svh] w-full max-w-none overflow-hidden bg-zinc-900 text-white">
       <div className="absolute inset-0">
-        {HERO_SLIDES.map((slide, i) => (
+        {slides.map((slide, i) => (
           <div
-            key={slide.src}
+            key={`${i}-${slide.src}`}
             className="absolute inset-0 transition-opacity duration-[900ms] ease-out"
             style={{ opacity: i === active ? 1 : 0, zIndex: i === active ? 1 : 0 }}
             aria-hidden={i !== active}
@@ -124,6 +124,7 @@ export function HomeHero() {
               sizes="100vw"
               priority={i === 0}
               quality={85}
+              unoptimized
             />
           </div>
         ))}
@@ -143,18 +144,15 @@ export function HomeHero() {
                   className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]"
                   aria-hidden
                 />
-                The future of fabric begins here
+                {heroEyebrow}
               </p>
               <h1 className="mt-6 font-sans text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl xl:text-[3.5rem]">
-                Global perspective
+                {heroTitlePrimary}
                 <br />
-                <span className="text-white">Nadee textile industry</span>
+                <span className="text-white">{heroTitleAccent}</span>
               </h1>
-              <p className="mt-6 max-w-none text-sm leading-relaxed text-zinc-200 sm:text-base">
-                Since day one, Nadee Textile has focused on honest garments and
-                dependable production—from fabric selection through finishing—so
-                retailers and customers get pieces that look right, feel right, and
-                hold up to real life.
+              <p className="mt-6 max-w-none whitespace-pre-line text-sm leading-relaxed text-zinc-200 sm:text-base">
+                {heroSubtitle}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Link
@@ -191,10 +189,7 @@ export function HomeHero() {
               >
                 Follow
               </p>
-              <div
-                className="mt-2 flex flex-col items-center gap-2"
-                aria-hidden
-              >
+              <div className="mt-2 flex flex-col items-center gap-2" aria-hidden>
                 <div className="h-16 w-px bg-gradient-to-b from-white/80 to-white/0" />
               </div>
             </div>
@@ -206,9 +201,9 @@ export function HomeHero() {
             aria-label="Hero slides"
           >
             <div className="flex gap-2">
-              {HERO_SLIDES.map((_, i) => (
+              {slides.map((_, i) => (
                 <button
-                  key={i}
+                  key={`tab-${i}`}
                   type="button"
                   role="tab"
                   aria-selected={i === active}

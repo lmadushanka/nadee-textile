@@ -1,22 +1,56 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getProducts } from "@/lib/products";
-import { getCategories } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
+import { getCategories } from "@/lib/categories";
+import { getProducts } from "@/lib/products";
+import {
+  DEFAULT_SITE_SETTINGS,
+  formatProductsCategoryTitle,
+} from "@/lib/site-settings-defaults";
+import { getResolvedSiteSettings } from "@/lib/site-settings";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Products",
-  description:
-    "Browse nadee-textile garments—shirts, knitwear, outerwear, and basics from our MongoDB catalog.",
-};
-
 type Props = { searchParams: Promise<{ category?: string }> };
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  let site = { ...DEFAULT_SITE_SETTINGS };
+  try {
+    site = await getResolvedSiteSettings();
+  } catch {
+    site = { ...DEFAULT_SITE_SETTINGS };
+  }
+  const sp = await searchParams;
+  const categorySlug = (sp.category ?? "").trim().toLowerCase();
+  let title = site.productsSeoTitle;
+  if (categorySlug) {
+    try {
+      const categories = await getCategories();
+      const cat = categories.find((c) => c.slug.toLowerCase() === categorySlug);
+      if (cat) {
+        title = `${formatProductsCategoryTitle(site.productsCategoryTitleTemplate, cat.name)} · ${site.productsSeoTitle}`;
+      }
+    } catch {
+      /* keep default title */
+    }
+  }
+  return {
+    title,
+    description: site.productsSeoDescription,
+  };
+}
 
 export default async function ProductsPage({ searchParams }: Props) {
   const sp = await searchParams;
   const categorySlug = (sp.category ?? "").trim().toLowerCase();
+
+  let site = { ...DEFAULT_SITE_SETTINGS };
+  try {
+    site = await getResolvedSiteSettings();
+  } catch {
+    site = { ...DEFAULT_SITE_SETTINGS };
+  }
+
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
   try {
     categories = await getCategories();
@@ -38,21 +72,30 @@ export default async function ProductsPage({ searchParams }: Props) {
     products = [];
   }
 
+  const heading = selectedCategory
+    ? formatProductsCategoryTitle(
+        site.productsCategoryTitleTemplate,
+        selectedCategory.name,
+      )
+    : site.productsTitleAll;
+
   return (
     <div className="w-full px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <header className="max-w-2xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-          Catalog
-        </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold text-[var(--ink)] sm:text-5xl">
-          {selectedCategory ? `${selectedCategory.name} products` : "Products"}
+        {site.productsEyebrow.trim() ? (
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+            {site.productsEyebrow}
+          </p>
+        ) : null}
+        <h1
+          className={`font-display text-4xl font-semibold text-[var(--ink)] sm:text-5xl ${
+            site.productsEyebrow.trim() ? "mt-3" : ""
+          }`}
+        >
+          {heading}
         </h1>
-        <p className="mt-4 text-lg leading-relaxed text-[var(--muted)]">
-          Every item below is loaded from your{" "}
-          <code className="rounded bg-black/[0.06] px-1.5 py-0.5 text-base">
-            nadee-textile
-          </code>{" "}
-          MongoDB database via Next.js—add more documents to grow this grid.
+        <p className="mt-4 whitespace-pre-line text-lg leading-relaxed text-[var(--muted)]">
+          {site.productsIntro}
         </p>
       </header>
 

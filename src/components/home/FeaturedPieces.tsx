@@ -1,10 +1,21 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
+import type { FeaturedPiecesSectionSettings } from "@/lib/site-settings-defaults";
 import type { ProductJSON } from "@/lib/products";
 
-type Props = { products: ProductJSON[] };
+type Props = { products: ProductJSON[] } & FeaturedPiecesSectionSettings;
 
-export function FeaturedPieces({ products }: Props) {
+export function FeaturedPieces({
+  products,
+  featuredEyebrow,
+  featuredTitleLead,
+  featuredTitleAccent,
+  featuredSubtitle,
+  featuredCtaLabel,
+  featuredCtaHref,
+  featuredEmptyTitle,
+  featuredEmptyBody,
+}: Props) {
   const n = products.length;
 
   return (
@@ -26,24 +37,23 @@ export function FeaturedPieces({ products }: Props) {
                 className="h-px w-8 bg-gradient-to-r from-[var(--accent)] to-transparent"
                 aria-hidden
               />
-              Handpicked
+              {featuredEyebrow}
             </p>
             <h2 className="mt-4 font-display text-4xl font-semibold leading-[1.1] tracking-tight text-[var(--ink)] sm:text-5xl lg:text-[3.25rem]">
-              Featured{" "}
+              {featuredTitleLead}{" "}
               <span className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-deep)] bg-clip-text text-transparent">
-                pieces
+                {featuredTitleAccent}
               </span>
             </h2>
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-[var(--muted)] sm:text-lg">
-              A rotating spotlight on standout styles from your catalog—chosen
-              for craft, fit, and everyday appeal.
+            <p className="mt-5 max-w-lg whitespace-pre-line text-base leading-relaxed text-[var(--muted)] sm:text-lg">
+              {featuredSubtitle}
             </p>
           </div>
           <Link
-            href="/products"
+            href={featuredCtaHref}
             className="group inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-[var(--ink)]/10 bg-white/80 px-6 py-3 text-sm font-semibold text-[var(--ink)] shadow-sm backdrop-blur transition hover:border-[var(--accent-deep)]/30 hover:bg-white hover:shadow-md"
           >
-            View full collection
+            {featuredCtaLabel}
             <span
               className="inline-block transition-transform group-hover:translate-x-0.5"
               aria-hidden
@@ -64,18 +74,10 @@ export function FeaturedPieces({ products }: Props) {
               aria-hidden
             />
             <p className="relative font-display text-xl font-semibold text-[var(--ink)]">
-              Your showroom is ready
+              {featuredEmptyTitle}
             </p>
-            <p className="relative mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--muted)]">
-              Mark products as featured in Admin, or seed sample data—then this
-              grid fills with rich cards automatically.
-            </p>
-            <p className="relative mt-6 text-xs text-[var(--muted)]">
-              Run{" "}
-              <code className="rounded-md bg-black/[0.06] px-2 py-1 font-mono text-[var(--ink)]">
-                npm run seed
-              </code>{" "}
-              from the project root, then refresh.
+            <p className="relative mx-auto mt-3 max-w-md whitespace-pre-line text-sm leading-relaxed text-[var(--muted)]">
+              {featuredEmptyBody}
             </p>
           </div>
         ) : (

@@ -9,8 +9,18 @@ async function run() {
   const { Product } = await import("../models/Product");
   const { User } = await import("../models/User");
   const { Category } = await import("../models/Category");
+  const { SiteSettings, SITE_SETTINGS_KEY } = await import("../models/SiteSettings");
+  const { DEFAULT_SITE_SETTINGS } = await import("../lib/site-settings-defaults");
 
   await connectDB();
+
+  if (!(await SiteSettings.exists({ key: SITE_SETTINGS_KEY }))) {
+    await SiteSettings.create({
+      key: SITE_SETTINGS_KEY,
+      ...DEFAULT_SITE_SETTINGS,
+    });
+    console.log("Seeded default SiteSettings (fabric block + hero).");
+  }
   await Product.deleteMany({});
 
   const adminEmail =
