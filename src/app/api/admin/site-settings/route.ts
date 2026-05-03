@@ -124,6 +124,11 @@ function parseAboutValues(
 function mergePatch(
   base: ResolvedSiteSettings,
   body: Partial<{
+    brandLogoSrc: string;
+    brandLogoAlt: string;
+    brandFaviconSrc: string;
+    brandSiteTitleDefault: string;
+    brandSiteTitleTemplate: string;
     fabricImageSrc: string;
     fabricImageAlt: string;
     fabricTitle: string;
@@ -192,6 +197,26 @@ function mergePatch(
   }>,
 ): ResolvedSiteSettings {
   return {
+    brandLogoSrc:
+      typeof body.brandLogoSrc === "string"
+        ? body.brandLogoSrc.trim().slice(0, 2000)
+        : base.brandLogoSrc,
+    brandLogoAlt:
+      typeof body.brandLogoAlt === "string"
+        ? body.brandLogoAlt.trim().slice(0, 200)
+        : base.brandLogoAlt,
+    brandFaviconSrc:
+      typeof body.brandFaviconSrc === "string"
+        ? body.brandFaviconSrc.trim().slice(0, 2000)
+        : base.brandFaviconSrc,
+    brandSiteTitleDefault:
+      typeof body.brandSiteTitleDefault === "string"
+        ? body.brandSiteTitleDefault.trim().slice(0, 120)
+        : base.brandSiteTitleDefault,
+    brandSiteTitleTemplate:
+      typeof body.brandSiteTitleTemplate === "string"
+        ? body.brandSiteTitleTemplate.trim().slice(0, 120)
+        : base.brandSiteTitleTemplate,
     fabricImageSrc:
       typeof body.fabricImageSrc === "string"
         ? body.fabricImageSrc.trim()
@@ -470,6 +495,11 @@ export async function PATCH(request: Request) {
     const body = (await request.json()) as Partial<Record<string, unknown>>;
     const base = await getResolvedSiteSettings();
     const merged = mergePatch(base, {
+      brandLogoSrc: body.brandLogoSrc as string | undefined,
+      brandLogoAlt: body.brandLogoAlt as string | undefined,
+      brandFaviconSrc: body.brandFaviconSrc as string | undefined,
+      brandSiteTitleDefault: body.brandSiteTitleDefault as string | undefined,
+      brandSiteTitleTemplate: body.brandSiteTitleTemplate as string | undefined,
       fabricImageSrc: body.fabricImageSrc as string | undefined,
       fabricImageAlt: body.fabricImageAlt as string | undefined,
       fabricTitle: body.fabricTitle as string | undefined,
@@ -536,6 +566,34 @@ export async function PATCH(request: Request) {
       contactFooterLinkText: body.contactFooterLinkText as string | undefined,
       contactFooterLinkHref: body.contactFooterLinkHref as string | undefined,
     });
+
+    if (!isAllowedImageSrc(merged.brandLogoSrc)) {
+      return NextResponse.json(
+        { error: "Brand logo URL must start with / or http(s)://" },
+        { status: 400 },
+      );
+    }
+    if (!isAllowedImageSrc(merged.brandFaviconSrc)) {
+      return NextResponse.json(
+        { error: "Favicon URL must start with / or http(s)://" },
+        { status: 400 },
+      );
+    }
+    if (!merged.brandSiteTitleDefault.trim()) {
+      return NextResponse.json(
+        { error: "Default browser tab title is required" },
+        { status: 400 },
+      );
+    }
+    if (!merged.brandSiteTitleTemplate.includes("%s")) {
+      return NextResponse.json(
+        {
+          error:
+            'Browser title template must include %s for the page name (example: "%s | My shop")',
+        },
+        { status: 400 },
+      );
+    }
 
     if (!isAllowedImageSrc(merged.fabricImageSrc)) {
       return NextResponse.json(
@@ -778,12 +836,19 @@ export async function PATCH(request: Request) {
 
     const fabricImageAlt =
       merged.fabricImageAlt.trim() || DEFAULT_SITE_SETTINGS.fabricImageAlt;
+    const brandLogoAlt =
+      merged.brandLogoAlt.trim() || DEFAULT_SITE_SETTINGS.brandLogoAlt;
 
     await connectDB();
     await SiteSettings.findOneAndUpdate(
       { key: SITE_SETTINGS_KEY },
       {
         key: SITE_SETTINGS_KEY,
+        brandLogoSrc: merged.brandLogoSrc,
+        brandLogoAlt,
+        brandFaviconSrc: merged.brandFaviconSrc,
+        brandSiteTitleDefault: merged.brandSiteTitleDefault,
+        brandSiteTitleTemplate: merged.brandSiteTitleTemplate,
         fabricImageSrc: merged.fabricImageSrc,
         fabricImageAlt,
         fabricTitle: merged.fabricTitle,

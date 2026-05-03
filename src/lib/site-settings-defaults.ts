@@ -36,6 +36,19 @@ export const ABOUT_VALUES_CONSTRAINTS = { min: 1, max: 6 } as const;
 export type AboutValueBlock = { title: string; body: string };
 
 export type ResolvedSiteSettings = {
+  /** Header / footer logo image URL (`/` path or `https://`). */
+  brandLogoSrc: string;
+  /** Accessible name for the logo (shown when set; otherwise UI falls back to i18n). */
+  brandLogoAlt: string;
+  /** Site favicon URL (`/` path or `https://`). */
+  brandFaviconSrc: string;
+  /** Default `<title>` for the home tab and site-wide fallback. */
+  brandSiteTitleDefault: string;
+  /**
+   * Next.js title template for inner pages. Must include `%s` where the page title is inserted
+   * (e.g. `%s | nadee-textile`).
+   */
+  brandSiteTitleTemplate: string;
   fabricImageSrc: string;
   fabricImageAlt: string;
   fabricTitle: string;
@@ -110,6 +123,11 @@ export type ResolvedSiteSettings = {
 };
 
 export const DEFAULT_SITE_SETTINGS: ResolvedSiteSettings = {
+  brandLogoSrc: "/logo.png",
+  brandLogoAlt: "Nadee Textile",
+  brandFaviconSrc: "/icon.ico",
+  brandSiteTitleDefault: "nadee-textile | Garments & apparel",
+  brandSiteTitleTemplate: "%s | nadee-textile",
   fabricImageSrc: "/img1.jpeg",
   fabricImageAlt: "Fabric and tailoring",
   fabricTitle: "Fabric-first mindset",
@@ -213,6 +231,15 @@ export function formatProductsCategoryTitle(template: string, categoryName: stri
   }
   return `${categoryName} products`;
 }
+
+export type BrandAssetsSettings = Pick<
+  ResolvedSiteSettings,
+  | "brandLogoSrc"
+  | "brandLogoAlt"
+  | "brandFaviconSrc"
+  | "brandSiteTitleDefault"
+  | "brandSiteTitleTemplate"
+>;
 
 export type FabricSectionSettings = Pick<
   ResolvedSiteSettings,

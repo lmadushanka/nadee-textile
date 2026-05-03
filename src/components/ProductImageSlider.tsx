@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { brandImageUnoptimized, useBrandAssets } from "@/components/BrandAssetsProvider";
 
 type Props = {
   images: string[];
@@ -26,7 +27,8 @@ export function ProductImageSlider({
   autoPlay = false,
   enableLightbox = false,
 }: Props) {
-  const safeImages = images.length > 0 ? images : ["/logo.png"];
+  const { logoSrc } = useBrandAssets();
+  const safeImages = images.length > 0 ? images : [logoSrc];
   const [idx, setIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const currentIdx = idx % safeImages.length;
@@ -75,6 +77,7 @@ export function ProductImageSlider({
             sizes={sizes}
             className="object-cover transition duration-500"
             priority={priority}
+            unoptimized={brandImageUnoptimized(safeImages[currentIdx] ?? "")}
           />
         </button>
         {showArrows && safeImages.length > 1 ? (
@@ -131,6 +134,7 @@ export function ProductImageSlider({
               sizes="100vw"
               className="object-contain"
               priority
+              unoptimized={brandImageUnoptimized(safeImages[currentIdx] ?? "")}
             />
             {safeImages.length > 1 ? (
               <>

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { connectDB } from "@/lib/mongodb";
 import {
   DEFAULT_SITE_SETTINGS,
@@ -11,6 +12,7 @@ import { SITE_SETTINGS_KEY, SiteSettings } from "@/models/SiteSettings";
 export type {
   ResolvedSiteSettings,
   HeroSlide,
+  BrandAssetsSettings,
   FabricSectionSettings,
   HomeHeroSettings,
   FeaturedPiecesSectionSettings,
@@ -68,6 +70,21 @@ export async function getResolvedSiteSettings(): Promise<ResolvedSiteSettings> {
   await connectDB();
   const doc = await SiteSettings.findOne({ key: SITE_SETTINGS_KEY }).lean().exec();
   return {
+    brandLogoSrc:
+      (doc?.brandLogoSrc && String(doc.brandLogoSrc).trim()) ||
+      DEFAULT_SITE_SETTINGS.brandLogoSrc,
+    brandLogoAlt:
+      (doc?.brandLogoAlt && String(doc.brandLogoAlt).trim()) ||
+      DEFAULT_SITE_SETTINGS.brandLogoAlt,
+    brandFaviconSrc:
+      (doc?.brandFaviconSrc && String(doc.brandFaviconSrc).trim()) ||
+      DEFAULT_SITE_SETTINGS.brandFaviconSrc,
+    brandSiteTitleDefault:
+      (doc?.brandSiteTitleDefault && String(doc.brandSiteTitleDefault).trim()) ||
+      DEFAULT_SITE_SETTINGS.brandSiteTitleDefault,
+    brandSiteTitleTemplate:
+      (doc?.brandSiteTitleTemplate && String(doc.brandSiteTitleTemplate).trim()) ||
+      DEFAULT_SITE_SETTINGS.brandSiteTitleTemplate,
     fabricImageSrc:
       (doc?.fabricImageSrc && String(doc.fabricImageSrc).trim()) ||
       DEFAULT_SITE_SETTINGS.fabricImageSrc,
@@ -265,3 +282,12 @@ export async function getResolvedSiteSettings(): Promise<ResolvedSiteSettings> {
         : DEFAULT_SITE_SETTINGS.contactFooterLinkHref,
   };
 }
+
+/** One resolved settings read per request (root layout + generateMetadata). */
+export const getResolvedSiteSettingsForLayout = cache(async (): Promise<ResolvedSiteSettings> => {
+  try {
+    return await getResolvedSiteSettings();
+  } catch {
+    return { ...DEFAULT_SITE_SETTINGS };
+  }
+});

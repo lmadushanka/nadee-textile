@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { brandImageUnoptimized, useBrandAssets } from "@/components/BrandAssetsProvider";
 import { CartBadge } from "@/components/CartBadge";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLocale } from "@/components/LocaleProvider";
@@ -141,6 +142,7 @@ export function FloatingSiteHeader({
   userLabel,
 }: FloatingSiteHeaderProps) {
   const { t } = useLocale();
+  const { logoSrc, logoAlt } = useBrandAssets();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -160,7 +162,8 @@ export function FloatingSiteHeader({
   const iconBtnIdle = "border-zinc-200 hover:bg-zinc-50";
   const iconBtnActive = "border-[#0c1222] bg-[#0c1222] text-white hover:bg-[#151d33]";
 
-  const brandAlt = t("nav.brandAlt");
+  const brandAlt = logoAlt.trim() ? logoAlt.trim() : t("nav.brandAlt");
+  const logoUnopt = brandImageUnoptimized(logoSrc);
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-[100] px-2 pt-2 sm:px-3 sm:pt-3 lg:px-4 lg:pt-4">
@@ -171,12 +174,13 @@ export function FloatingSiteHeader({
           aria-current={pathname === "/" ? "page" : undefined}
         >
           <Image
-            src="/logo.png"
+            src={logoSrc}
             alt={brandAlt}
             width={48}
             height={48}
             className="h-11 w-auto sm:h-12"
             priority
+            unoptimized={logoUnopt}
           />
         </Link>
 
@@ -317,11 +321,12 @@ export function FloatingSiteHeader({
             <div className="flex min-h-[4.25rem] items-center justify-between border-b border-zinc-100 px-5 py-3">
               <Link href="/" className="flex items-center" onClick={closeDrawer}>
                 <Image
-                  src="/logo.png"
+                  src={logoSrc}
                   alt={brandAlt}
                   width={44}
                   height={44}
                   className="h-11 w-auto"
+                  unoptimized={logoUnopt}
                 />
               </Link>
               <button

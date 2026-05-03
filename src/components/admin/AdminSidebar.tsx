@@ -13,6 +13,7 @@ const primaryLinks = [
 ] as const;
 
 const settingsChildren = [
+  { href: "/admin/settings/brand", label: "Brand" },
   { href: "/admin/settings/fabric", label: "Fabric" },
   { href: "/admin/settings/hero", label: "Hero" },
   { href: "/admin/settings/featured", label: "Featured" },

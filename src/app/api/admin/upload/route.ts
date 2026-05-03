@@ -17,9 +17,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "File is required" }, { status: 400 });
     }
 
-    if (!maybeFile.type.startsWith("image/")) {
+    const nameLower = maybeFile.name.toLowerCase();
+    const looksLikeIco =
+      nameLower.endsWith(".ico") &&
+      (!maybeFile.type ||
+        maybeFile.type === "application/octet-stream" ||
+        maybeFile.type === "image/x-icon" ||
+        maybeFile.type === "image/vnd.microsoft.icon");
+    if (!maybeFile.type.startsWith("image/") && !looksLikeIco) {
       return NextResponse.json(
-        { error: "Only image files are supported" },
+        { error: "Only image files (or .ico favicons) are supported" },
         { status: 400 },
       );
     }

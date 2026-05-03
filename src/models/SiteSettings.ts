@@ -20,6 +20,11 @@ const AboutValueSchema = new Schema(
 
 export type SiteSettingsDoc = {
   key: string;
+  brandLogoSrc: string;
+  brandLogoAlt: string;
+  brandFaviconSrc: string;
+  brandSiteTitleDefault: string;
+  brandSiteTitleTemplate: string;
   fabricImageSrc: string;
   fabricImageAlt: string;
   fabricTitle: string;
@@ -90,6 +95,11 @@ export type SiteSettingsDoc = {
 const SiteSettingsSchema = new Schema<SiteSettingsDoc>(
   {
     key: { type: String, required: true, unique: true, default: SITE_SETTINGS_KEY },
+    brandLogoSrc: { type: String, required: true, trim: true, maxlength: 2000 },
+    brandLogoAlt: { type: String, required: true, trim: true, maxlength: 200 },
+    brandFaviconSrc: { type: String, required: true, trim: true, maxlength: 2000 },
+    brandSiteTitleDefault: { type: String, required: true, trim: true, maxlength: 120 },
+    brandSiteTitleTemplate: { type: String, required: true, trim: true, maxlength: 120 },
     fabricImageSrc: { type: String, required: true, trim: true, maxlength: 2000 },
     fabricImageAlt: { type: String, required: true, trim: true, maxlength: 500 },
     fabricTitle: { type: String, required: true, trim: true, maxlength: 400 },
@@ -177,7 +187,9 @@ if (
     !existingSiteSettings.schema.path("featuredProductLimit") ||
     !existingSiteSettings.schema.path("productsTitleAll") ||
     !existingSiteSettings.schema.path("aboutHeroTitle") ||
-    !existingSiteSettings.schema.path("contactHeroTitle"))
+    !existingSiteSettings.schema.path("contactHeroTitle") ||
+    !existingSiteSettings.schema.path("brandLogoSrc") ||
+    !existingSiteSettings.schema.path("brandSiteTitleDefault"))
 ) {
   delete models.SiteSettings;
 }
