@@ -167,11 +167,7 @@ export function FloatingSiteHeader({
       <div className="pointer-events-auto flex w-full max-w-none min-h-[3.75rem] items-center gap-2 rounded-[100px] bg-white py-3 pl-3 pr-2 shadow-[0_12px_40px_rgba(0,0,0,0.1)] ring-1 ring-black/[0.06] sm:min-h-[4.25rem] sm:gap-3 sm:py-3.5 sm:pl-5 sm:pr-3 md:pl-6">
         <Link
           href="/"
-          className={`flex min-w-0 shrink-0 items-center rounded-full p-0.5 ring-offset-2 transition ${
-            pathname === "/"
-              ? "ring-2 ring-[#0c1222] ring-offset-0"
-              : "ring-0 hover:opacity-90"
-          }`}
+          className="flex min-w-0 shrink-0 items-center transition hover:opacity-90 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0c1222]/30 focus-visible:ring-offset-2"
           aria-current={pathname === "/" ? "page" : undefined}
         >
           <Image
