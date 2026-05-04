@@ -536,7 +536,10 @@ export async function PATCH(request: Request) {
       productsSeoTitle: body.productsSeoTitle as string | undefined,
       productsSeoDescription: body.productsSeoDescription as string | undefined,
       productSizeCatalog: body.productSizeCatalog as string[] | undefined,
-      productSizeDisplayStyle: body.productSizeDisplayStyle as string | undefined,
+      productSizeDisplayStyle:
+        body.productSizeDisplayStyle !== undefined
+          ? parseProductSizeDisplayStyle(body.productSizeDisplayStyle)
+          : undefined,
       aboutSeoTitle: body.aboutSeoTitle as string | undefined,
       aboutSeoDescription: body.aboutSeoDescription as string | undefined,
       aboutEyebrow: body.aboutEyebrow as string | undefined,
