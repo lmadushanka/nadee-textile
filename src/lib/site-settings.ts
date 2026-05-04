@@ -5,6 +5,8 @@ import {
   FEATURED_PRODUCT_LIMIT_RANGE,
   type AboutValueBlock,
   type HeroSlide,
+  parseProductSizeCatalog,
+  parseProductSizeDisplayStyle,
   type ResolvedSiteSettings,
 } from "@/lib/site-settings-defaults";
 import { SITE_SETTINGS_KEY, SiteSettings } from "@/models/SiteSettings";
@@ -152,6 +154,8 @@ export async function getResolvedSiteSettings(): Promise<ResolvedSiteSettings> {
     productsSeoDescription:
       (doc?.productsSeoDescription && String(doc.productsSeoDescription).trim()) ||
       DEFAULT_SITE_SETTINGS.productsSeoDescription,
+    productSizeCatalog: parseProductSizeCatalog(doc?.productSizeCatalog),
+    productSizeDisplayStyle: parseProductSizeDisplayStyle(doc?.productSizeDisplayStyle),
     aboutSeoTitle:
       (doc?.aboutSeoTitle && String(doc.aboutSeoTitle).trim()) ||
       DEFAULT_SITE_SETTINGS.aboutSeoTitle,

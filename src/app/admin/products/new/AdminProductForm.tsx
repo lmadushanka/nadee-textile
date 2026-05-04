@@ -2,16 +2,19 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/toast";
+import {
+  DEFAULT_SITE_SETTINGS,
+  type ResolvedSiteSettings,
+} from "@/lib/site-settings-defaults";
 
 type Category = {
   _id: string;
   name: string;
   slug: string;
 };
-
-const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 
 const COLOR_OPTIONS = [
   { label: "Black", value: "#111111" },
@@ -41,6 +44,26 @@ export function AdminProductForm() {
   const [featured, setFeatured] = useState(false);
   const [busy, setBusy] = useState(false);
   const [uploadBusy, setUploadBusy] = useState(false);
+  const [sizeCatalog, setSizeCatalog] = useState<string[]>(() => [
+    ...DEFAULT_SITE_SETTINGS.productSizeCatalog,
+  ]);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/site-settings")
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!alive || !ok) return;
+        const s = d as ResolvedSiteSettings;
+        if (Array.isArray(s.productSizeCatalog) && s.productSizeCatalog.length > 0) {
+          setSizeCatalog([...s.productSizeCatalog]);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     fetch("/api/admin/categories")
@@ -191,7 +214,7 @@ export function AdminProductForm() {
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="price" className="block text-sm font-medium">
-            Price (USD)
+            Price (Rs.)
           </label>
           <input
             id="price"
@@ -244,22 +267,35 @@ export function AdminProductForm() {
         </div>
       </div>
       <div className="rounded-xl border border-[var(--border)] bg-white p-4">
-        <p className="block text-sm font-medium">Sizes</p>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="block text-sm font-medium">Sizes</p>
+          <Link
+            href="/admin/settings/products"
+            className="text-xs font-semibold text-[var(--accent-deep)] hover:underline"
+          >
+            Edit size list
+          </Link>
+        </div>
+        <p className="mt-1 text-xs text-[var(--muted)]">
+          Check the sizes this product comes in. Add new labels under Settings → Products.
+        </p>
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
-          {SIZE_OPTIONS.map((size) => (
-            <label
-              key={size}
-              className="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
-            >
-              <input
-                type="checkbox"
-                checked={sizes.includes(size)}
-                onChange={() => toggleSize(size)}
-                className="h-4 w-4 rounded border-[var(--border)]"
-              />
-              {size}
-            </label>
-          ))}
+          {sizeCatalog
+            .filter((label) => label.trim().length > 0)
+            .map((size) => (
+              <label
+                key={size}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={sizes.includes(size)}
+                  onChange={() => toggleSize(size)}
+                  className="h-4 w-4 rounded border-[var(--border)]"
+                />
+                {size}
+              </label>
+            ))}
         </div>
       </div>
 

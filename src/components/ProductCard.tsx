@@ -1,7 +1,8 @@
 import Link from "next/link";
-import type { ProductJSON } from "@/lib/products";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductImageSlider } from "@/components/ProductImageSlider";
+import { formatRs } from "@/lib/format-currency";
+import type { ProductJSON } from "@/lib/products";
 
 type Props = {
   product: ProductJSON;
@@ -10,10 +11,6 @@ type Props = {
   size?: "default" | "large" | "compact";
   className?: string;
 };
-
-function formatRs(value: number) {
-  return `Rs. ${value.toFixed(2)}`;
-}
 
 export function ProductCard({
   product,
@@ -29,10 +26,10 @@ export function ProductCard({
 
   return (
     <article
-      className={`group flex h-full min-h-0 flex-col overflow-hidden border border-[var(--border)] bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] transition duration-300 hover:border-[var(--accent-deep)]/20 ${
+      className={`nadee-product-card-home group flex h-full min-h-0 flex-col overflow-hidden border border-[var(--border)] bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] hover:border-[var(--accent-deep)]/25 ${
         compact
-          ? "hover:-translate-y-0.5 hover:shadow-md"
-          : "hover:-translate-y-1 hover:shadow-xl"
+          ? "hover:-translate-y-1 hover:shadow-lg"
+          : "hover:-translate-y-2 hover:shadow-xl"
       } ${radius} ${large ? "lg:flex-1" : ""} ${className}`}
     >
       <Link
@@ -47,7 +44,7 @@ export function ProductCard({
               ? "(max-width:640px) 100vw, (max-width:1024px) 50vw, 240px"
               : "(max-width:768px) 100vw, 33vw"
           }
-          className="h-full w-full group-hover:scale-[1.03]"
+          className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.06]"
           priority={priority}
           autoPlay={false}
           showDots={false}
@@ -74,7 +71,7 @@ export function ProductCard({
         >
           <Link
             href={`/products/${product.slug}`}
-            className="hover:text-[var(--accent-deep)] hover:underline"
+            className="transition-colors duration-300 hover:text-[var(--accent-deep)] hover:underline"
           >
             {product.name}
           </Link>
@@ -97,11 +94,15 @@ export function ProductCard({
         {product.sizes.length > 0 || product.colors.length > 0 ? (
           <Link
             href={`/products/${product.slug}`}
-            className={`mt-3 inline-flex w-full items-center justify-center rounded-full bg-[var(--ink)] font-semibold text-white transition hover:opacity-90 ${
+            className={`mt-3 inline-flex w-full items-center justify-center rounded-full bg-[var(--ink)] font-semibold text-white transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-lg hover:brightness-110 active:scale-[0.98] ${
               compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"
             }`}
           >
-            Select options
+            {product.sizes.length > 0 && product.colors.length > 0
+              ? "Select size & color"
+              : product.sizes.length > 0
+                ? "Select size"
+                : "Select color"}
           </Link>
         ) : (
           <AddToCartButton

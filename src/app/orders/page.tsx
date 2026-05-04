@@ -4,16 +4,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongodb";
+import { formatRs } from "@/lib/format-currency";
 import { Order, type OrderLine } from "@/models/Order";
 import { Types } from "mongoose";
 
 export const metadata: Metadata = {
   title: "My orders",
 };
-
-function formatRs(value: number) {
-  return `Rs. ${value.toFixed(2)}`;
-}
 
 function badgeClass(status: string) {
   if (status === "placed") return "bg-blue-50 text-blue-700 border-blue-200";

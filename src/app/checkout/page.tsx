@@ -6,6 +6,7 @@ import { connectDB } from "@/lib/mongodb";
 import { Cart } from "@/models/Cart";
 import { Types } from "mongoose";
 import { buildCartPayload } from "@/lib/cart-request";
+import { formatRs } from "@/lib/format-currency";
 import { CheckoutForm } from "./CheckoutForm";
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ export default async function CheckoutPage() {
       <p className="mt-2 text-sm text-[var(--muted)]">
         Subtotal:{" "}
         <span className="font-semibold text-[var(--ink)]">
-          ${payload.subtotal.toFixed(2)}
+          {formatRs(payload.subtotal)}
         </span>{" "}
         · {payload.items.length} line
         {payload.items.length === 1 ? "" : "s"}

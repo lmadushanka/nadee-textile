@@ -3,6 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductImageSlider } from "@/components/ProductImageSlider";
+import { DEFAULT_SITE_SETTINGS } from "@/lib/site-settings-defaults";
+import { formatRs } from "@/lib/format-currency";
+import { getResolvedSiteSettings } from "@/lib/site-settings";
 import { getProductBySlug } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
@@ -21,16 +24,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function formatRs(value: number) {
-  return `Rs. ${value.toFixed(2)}`;
-}
-
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) {
     notFound();
   }
+
+  let sizeDisplayStyle = DEFAULT_SITE_SETTINGS.productSizeDisplayStyle;
+  try {
+    const site = await getResolvedSiteSettings();
+    sizeDisplayStyle = site.productSizeDisplayStyle;
+  } catch {
+    /* use defaults */
+  }
+
+  /** Sizes are read from MongoDB on this product (`sizes`); order matches the document. */
+  const sizesFromDb = Array.isArray(product.sizes) ? [...product.sizes] : [];
+  const hasSizes = sizesFromDb.length > 0;
+  const hasColors = product.colors.length > 0;
+  const optionCardTitle = hasSizes
+    ? "Select size"
+    : hasColors
+      ? "Select color"
+      : "Add to cart";
+  const optionCardSubtitle = hasSizes && hasColors
+    ? "Choose a size from this product’s list below, then color and quantity."
+    : hasSizes
+      ? "Choose a size from this product’s list below, then quantity."
+      : hasColors
+        ? "Choose a color and quantity."
+        : "Set quantity and add to cart.";
 
   return (
     <div className="w-full px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -79,17 +103,16 @@ export default async function ProductDetailPage({ params }: Props) {
 
           <div className="mt-6 rounded-2xl border border-[var(--border)] bg-gradient-to-br from-white to-[var(--paper)] p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-              Select options
+              {optionCardTitle}
             </p>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Choose your size, color, and quantity to add this item to cart.
-            </p>
+            <p className="mt-1 text-sm text-[var(--muted)]">{optionCardSubtitle}</p>
             <AddToCartButton
               productId={product._id}
               disabled={!product.active || product.quantity <= 0}
               disabledLabel={!product.active ? "Unavailable" : "Out of stock"}
-              sizes={product.sizes}
+              sizes={sizesFromDb}
               colors={product.colors}
+              sizeDisplayStyle={sizeDisplayStyle}
             />
           </div>
         </div>

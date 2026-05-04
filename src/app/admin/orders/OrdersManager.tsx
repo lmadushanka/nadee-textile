@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/toast";
+import { formatRs } from "@/lib/format-currency";
 
 type OrderStatus = "placed" | "processing" | "shipped" | "cancelled";
 
@@ -30,10 +31,6 @@ type OrderItem = {
 };
 
 const STATUSES: OrderStatus[] = ["placed", "processing", "shipped", "cancelled"];
-
-function formatRs(value: number) {
-  return `Rs. ${value.toFixed(2)}`;
-}
 
 function badgeClass(status: OrderStatus) {
   if (status === "placed") return "bg-blue-50 text-blue-700 border-blue-200";

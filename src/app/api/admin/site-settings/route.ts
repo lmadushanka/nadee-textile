@@ -8,6 +8,8 @@ import {
   HERO_SLIDES_CONSTRAINTS,
   type AboutValueBlock,
   type HeroSlide,
+  parseProductSizeCatalog,
+  parseProductSizeDisplayStyle,
   type ResolvedSiteSettings,
 } from "@/lib/site-settings-defaults";
 import { getResolvedSiteSettings } from "@/lib/site-settings";
@@ -153,6 +155,8 @@ function mergePatch(
     productsIntro: string;
     productsSeoTitle: string;
     productsSeoDescription: string;
+    productSizeCatalog: string[];
+    productSizeDisplayStyle: ResolvedSiteSettings["productSizeDisplayStyle"];
     aboutSeoTitle: string;
     aboutSeoDescription: string;
     aboutEyebrow: string;
@@ -308,6 +312,13 @@ function mergePatch(
       typeof body.productsSeoDescription === "string"
         ? body.productsSeoDescription.trim().slice(0, 320)
         : base.productsSeoDescription,
+    productSizeCatalog: Array.isArray(body.productSizeCatalog)
+      ? parseProductSizeCatalog(body.productSizeCatalog)
+      : base.productSizeCatalog,
+    productSizeDisplayStyle:
+      body.productSizeDisplayStyle !== undefined
+        ? parseProductSizeDisplayStyle(body.productSizeDisplayStyle)
+        : base.productSizeDisplayStyle,
     aboutSeoTitle:
       typeof body.aboutSeoTitle === "string"
         ? body.aboutSeoTitle.trim().slice(0, 120)
@@ -524,6 +535,8 @@ export async function PATCH(request: Request) {
       productsIntro: body.productsIntro as string | undefined,
       productsSeoTitle: body.productsSeoTitle as string | undefined,
       productsSeoDescription: body.productsSeoDescription as string | undefined,
+      productSizeCatalog: body.productSizeCatalog as string[] | undefined,
+      productSizeDisplayStyle: body.productSizeDisplayStyle as string | undefined,
       aboutSeoTitle: body.aboutSeoTitle as string | undefined,
       aboutSeoDescription: body.aboutSeoDescription as string | undefined,
       aboutEyebrow: body.aboutEyebrow as string | undefined,
@@ -682,6 +695,12 @@ export async function PATCH(request: Request) {
     if (!merged.productsSeoDescription.trim()) {
       return NextResponse.json(
         { error: "Products SEO meta description is required" },
+        { status: 400 },
+      );
+    }
+    if (merged.productSizeCatalog.length === 0) {
+      return NextResponse.json(
+        { error: "Add at least one size label in the size catalog (Admin → Settings → Products)." },
         { status: 400 },
       );
     }
@@ -873,6 +892,8 @@ export async function PATCH(request: Request) {
         productsIntro: merged.productsIntro,
         productsSeoTitle: merged.productsSeoTitle,
         productsSeoDescription: merged.productsSeoDescription,
+        productSizeCatalog: merged.productSizeCatalog,
+        productSizeDisplayStyle: merged.productSizeDisplayStyle,
         aboutSeoTitle: merged.aboutSeoTitle,
         aboutSeoDescription: merged.aboutSeoDescription,
         aboutEyebrow: merged.aboutEyebrow,

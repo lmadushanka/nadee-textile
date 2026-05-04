@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Types } from "mongoose";
 import { auth } from "@/auth";
+import { formatRs } from "@/lib/format-currency";
 import { connectDB } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
 
@@ -45,7 +46,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
       <p className="mt-4 text-sm text-[var(--muted)]">
         Total:{" "}
         <span className="font-semibold text-[var(--ink)]">
-          ${order.total.toFixed(2)}
+          {formatRs(Number(order.total))}
         </span>
       </p>
       <Link

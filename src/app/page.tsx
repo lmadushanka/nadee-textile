@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FabricMindsetSection } from "@/components/home/FabricMindsetSection";
 import { FeaturedPieces } from "@/components/home/FeaturedPieces";
 import { HomeHero } from "@/components/home/HomeHero";
+import { ScrollReveal } from "@/components/home/ScrollReveal";
 import { getCategories } from "@/lib/categories";
 import { getProducts } from "@/lib/products";
 import type { ResolvedSiteSettings } from "@/lib/site-settings-defaults";
@@ -44,17 +45,20 @@ export default async function Home() {
 
       <section className="w-full px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         {categories.length > 0 ? (
-          <div className="mb-8 flex flex-wrap gap-2">
-            {categories.map((item) => (
-              <Link
-                key={item._id}
-                href={`/products?category=${encodeURIComponent(item.slug)}`}
-                className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--muted)] transition hover:border-[var(--accent-deep)]/25 hover:text-[var(--accent-deep)]"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
+          <ScrollReveal className="mb-8">
+            <div className="flex flex-wrap gap-2">
+              {categories.map((item, i) => (
+                <ScrollReveal key={item._id} delayMs={i * 50} className="inline-block">
+                  <Link
+                    href={`/products?category=${encodeURIComponent(item.slug)}`}
+                    className="nadee-home-pill inline-block rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--muted)] hover:border-[var(--accent-deep)]/30 hover:text-[var(--accent-deep)]"
+                  >
+                    {item.name}
+                  </Link>
+                </ScrollReveal>
+              ))}
+            </div>
+          </ScrollReveal>
         ) : null}
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -80,22 +84,27 @@ export default async function Home() {
                   body: "Jackets built for movement, from light shells to denim staples.",
                   href: "/products",
                 },
-              ]).map((c) => (
-            <Link
-              key={c.title}
-              href={c.href}
-              className="group rounded-2xl border border-[var(--border)] bg-gradient-to-br from-white to-[var(--paper)]/60 p-8 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <h2 className="font-display text-xl font-semibold text-[var(--ink)] group-hover:text-[var(--accent)]">
-                {c.title}
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
-                {c.body}
-              </p>
-              <span className="mt-6 inline-flex text-sm font-semibold text-[var(--accent-deep)]">
-                View range →
-              </span>
-            </Link>
+              ]
+          ).map((c, i) => (
+            <ScrollReveal key={c.title} delayMs={i * 90} className="min-w-0">
+              <Link
+                href={c.href}
+                className="nadee-home-cat-card group block h-full rounded-2xl border border-[var(--border)] bg-gradient-to-br from-white to-[var(--paper)]/60 p-8 shadow-sm"
+              >
+                <h2 className="font-display text-xl font-semibold text-[var(--ink)] transition-colors duration-300 group-hover:text-[var(--accent)]">
+                  {c.title}
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--muted)] transition-colors duration-300 group-hover:text-[var(--ink)]/90">
+                  {c.body}
+                </p>
+                <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent-deep)] transition-transform duration-300 group-hover:translate-x-1">
+                  View range
+                  <span aria-hidden className="inline-block transition-transform duration-300 group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+            </ScrollReveal>
           ))}
         </div>
       </section>

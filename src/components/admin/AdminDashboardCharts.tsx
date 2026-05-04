@@ -1,6 +1,7 @@
 "use client";
 
 import type { DashboardDayPoint } from "@/lib/adminStats";
+import { formatRsAbbreviated, formatRsAxisTick } from "@/lib/format-currency";
 import {
   Area,
   AreaChart,
@@ -14,18 +15,6 @@ import {
 } from "recharts";
 
 type Props = { data: DashboardDayPoint[] };
-
-function formatRs(n: number) {
-  if (n >= 1_000_000) return `Rs. ${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1000) return `Rs. ${(n / 1000).toFixed(1)}k`;
-  return `Rs. ${Math.round(n)}`;
-}
-
-function formatRsAxis(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(0)}k`;
-  return String(Math.round(n));
-}
 
 const tooltipStyle = {
   backgroundColor: "rgba(255,255,255,0.96)",
@@ -83,10 +72,10 @@ export function AdminDashboardCharts({ data }: Props) {
                   tickLine={false}
                   axisLine={false}
                   width={44}
-                  tickFormatter={formatRsAxis}
+                  tickFormatter={formatRsAxisTick}
                 />
                 <Tooltip
-                  formatter={(value) => [formatRs(Number(value)), "Sales"]}
+                  formatter={(value) => [formatRsAbbreviated(Number(value)), "Sales"]}
                   labelFormatter={(label, payload) =>
                     (payload?.[0]?.payload as DashboardDayPoint | undefined)?.date ??
                     String(label ?? "")

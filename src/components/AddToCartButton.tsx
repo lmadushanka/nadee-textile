@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/toast";
+import type { ProductSizeDisplayStyle } from "@/lib/site-settings-defaults";
 
 type Props = {
   productId: string;
@@ -9,6 +10,7 @@ type Props = {
   disabledLabel?: string;
   sizes?: string[];
   colors?: string[];
+  sizeDisplayStyle?: ProductSizeDisplayStyle;
 };
 
 function isHexColor(value: string) {
@@ -21,6 +23,7 @@ export function AddToCartButton({
   disabledLabel,
   sizes = [],
   colors = [],
+  sizeDisplayStyle = "chips",
 }: Props) {
   const { success, error } = useToast();
   const [busy, setBusy] = useState(false);
@@ -31,6 +34,14 @@ export function AddToCartButton({
   const missingSize = sizes.length > 0 && !selectedSize;
   const missingColor = colors.length > 0 && !selectedColor;
   const selectionMissing = missingSize || missingColor;
+  const selectionCtaLabel =
+    missingSize && missingColor
+      ? "Select size & color"
+      : missingSize
+        ? "Select size"
+        : missingColor
+          ? "Select color"
+          : "Add to cart";
 
   async function add() {
     if (missingSize) {
@@ -74,22 +85,61 @@ export function AddToCartButton({
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
             Select size
           </p>
-          <div className="flex flex-wrap gap-1.5">
-            {sizes.map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => setSelectedSize(size)}
-                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                  selectedSize === size
-                    ? "border-[var(--accent-deep)] bg-[var(--accent-deep)] text-white"
-                    : "border-[var(--border)] bg-white text-[var(--ink)] hover:border-[var(--accent-deep)]/30"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
+          {sizeDisplayStyle === "table" ? (
+            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white">
+              <table className="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border)] bg-[var(--paper)] text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                    <th scope="col" className="px-3 py-2">
+                      Size
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sizes.map((size) => {
+                    const active = selectedSize === size;
+                    return (
+                      <tr key={size} className="border-b border-[var(--border)] last:border-b-0">
+                        <td className="p-0">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedSize(size)}
+                            className={`flex w-full items-center justify-between px-3 py-2.5 text-left font-semibold text-[var(--ink)] transition hover:bg-[var(--paper)] ${
+                              active ? "bg-[var(--accent-deep)]/10 text-[var(--accent-deep)]" : ""
+                            }`}
+                          >
+                            <span>{size}</span>
+                            {active ? (
+                              <span className="text-xs font-semibold text-[var(--accent-deep)]">
+                                Selected
+                              </span>
+                            ) : null}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {sizes.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setSelectedSize(size)}
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                    selectedSize === size
+                      ? "border-[var(--accent-deep)] bg-[var(--accent-deep)] text-white"
+                      : "border-[var(--border)] bg-white text-[var(--ink)] hover:border-[var(--accent-deep)]/30"
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       ) : null}
       {colors.length > 0 ? (
@@ -158,7 +208,7 @@ export function AddToCartButton({
           : busy
             ? "Adding…"
             : selectionMissing
-              ? "Select options"
+              ? selectionCtaLabel
               : "Add to cart"}
       </button>
     </div>

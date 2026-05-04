@@ -49,6 +49,8 @@ export type SiteSettingsDoc = {
   productsIntro: string;
   productsSeoTitle: string;
   productsSeoDescription: string;
+  productSizeCatalog: string[];
+  productSizeDisplayStyle: "table" | "chips";
   aboutSeoTitle: string;
   aboutSeoDescription: string;
   aboutEyebrow: string;
@@ -129,6 +131,17 @@ const SiteSettingsSchema = new Schema<SiteSettingsDoc>(
     productsIntro: { type: String, required: true, trim: true, maxlength: 2000 },
     productsSeoTitle: { type: String, required: true, trim: true, maxlength: 120 },
     productsSeoDescription: { type: String, required: true, trim: true, maxlength: 320 },
+    productSizeCatalog: {
+      type: [String],
+      required: true,
+      default: [],
+    },
+    productSizeDisplayStyle: {
+      type: String,
+      required: true,
+      enum: ["table", "chips"],
+      default: "chips",
+    },
     aboutSeoTitle: { type: String, required: true, trim: true, maxlength: 120 },
     aboutSeoDescription: { type: String, required: true, trim: true, maxlength: 320 },
     aboutEyebrow: { type: String, required: true, trim: true, maxlength: 120 },
@@ -189,7 +202,9 @@ if (
     !existingSiteSettings.schema.path("aboutHeroTitle") ||
     !existingSiteSettings.schema.path("contactHeroTitle") ||
     !existingSiteSettings.schema.path("brandLogoSrc") ||
-    !existingSiteSettings.schema.path("brandSiteTitleDefault"))
+    !existingSiteSettings.schema.path("brandSiteTitleDefault") ||
+    !existingSiteSettings.schema.path("productSizeCatalog") ||
+    !existingSiteSettings.schema.path("productSizeDisplayStyle"))
 ) {
   delete models.SiteSettings;
 }

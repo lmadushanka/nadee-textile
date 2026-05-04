@@ -4,11 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { CartPayload } from "@/lib/cart-request";
+import { formatRs } from "@/lib/format-currency";
 import { useToast } from "@/components/toast";
-
-function formatRs(value: number) {
-  return `Rs. ${value.toFixed(2)}`;
-}
 
 function isHexColor(value: string) {
   return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value);

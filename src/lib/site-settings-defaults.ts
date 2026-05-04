@@ -33,6 +33,64 @@ export const FEATURED_PRODUCT_LIMIT_RANGE = { min: 1, max: 12 } as const;
 /** “What we stand for” blocks on `/about`. */
 export const ABOUT_VALUES_CONSTRAINTS = { min: 1, max: 6 } as const;
 
+/** Admin-edited list of size labels (new product form + display order on product pages). */
+export const DEFAULT_PRODUCT_SIZE_CATALOG = ["XS", "S", "M", "L", "XL", "XXL"] as const;
+
+export const PRODUCT_SIZE_CATALOG_CONSTRAINTS = {
+  maxLabels: 48,
+  maxLabelLength: 32,
+} as const;
+
+/** How size options render on the product detail add-to-cart block. */
+export const PRODUCT_SIZE_DISPLAY_STYLES = ["table", "chips"] as const;
+export type ProductSizeDisplayStyle = (typeof PRODUCT_SIZE_DISPLAY_STYLES)[number];
+
+export function parseProductSizeDisplayStyle(raw: unknown): ProductSizeDisplayStyle {
+  const s = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+  if (s === "table") return "table";
+  return "chips";
+}
+
+export function parseProductSizeCatalog(raw: unknown): string[] {
+  const fallback = [...DEFAULT_PRODUCT_SIZE_CATALOG];
+  if (!Array.isArray(raw) || raw.length === 0) return fallback;
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const item of raw) {
+    const s =
+      typeof item === "string"
+        ? item.trim().slice(0, PRODUCT_SIZE_CATALOG_CONSTRAINTS.maxLabelLength)
+        : "";
+    if (!s) continue;
+    const key = s.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(s);
+    if (out.length >= PRODUCT_SIZE_CATALOG_CONSTRAINTS.maxLabels) break;
+  }
+  return out.length > 0 ? out : fallback;
+}
+
+/** Order a product’s sizes to match the admin catalog (table rows follow this order). */
+export function orderProductSizesForDisplay(sizes: string[], catalog: string[]): string[] {
+  if (sizes.length === 0) return [];
+  const rank = new Map<string, number>();
+  catalog.forEach((label, i) => {
+    const k = label.trim().toLowerCase();
+    if (k && !rank.has(k)) rank.set(k, i);
+  });
+  return [...sizes].sort((a, b) => {
+    const ka = a.trim().toLowerCase();
+    const kb = b.trim().toLowerCase();
+    const ra = rank.get(ka);
+    const rb = rank.get(kb);
+    if (ra !== undefined && rb !== undefined) return ra - rb;
+    if (ra !== undefined) return -1;
+    if (rb !== undefined) return 1;
+    return a.localeCompare(b, undefined, { sensitivity: "base" });
+  });
+}
+
 export type AboutValueBlock = { title: string; body: string };
 
 export type ResolvedSiteSettings = {
@@ -79,6 +137,10 @@ export type ResolvedSiteSettings = {
   productsSeoTitle: string;
   /** Meta description for `/products`. */
   productsSeoDescription: string;
+  /** Size labels offered when creating products in Admin (comma / custom sizes still work in product list). */
+  productSizeCatalog: string[];
+  /** Size picker layout on product detail (`table` = rows; `chips` = pills). */
+  productSizeDisplayStyle: ProductSizeDisplayStyle;
   aboutSeoTitle: string;
   aboutSeoDescription: string;
   aboutEyebrow: string;
@@ -158,6 +220,8 @@ export const DEFAULT_SITE_SETTINGS: ResolvedSiteSettings = {
   productsSeoTitle: "Products",
   productsSeoDescription:
     "Browse nadee-textile garments—shirts, knitwear, outerwear, and basics from our MongoDB catalog.",
+  productSizeCatalog: [...DEFAULT_PRODUCT_SIZE_CATALOG],
+  productSizeDisplayStyle: "chips",
   aboutSeoTitle: "About",
   aboutSeoDescription:
     "Learn about nadee-textile—our story, how we work with materials, and what we stand for in garments and apparel.",
@@ -271,6 +335,8 @@ export type ProductsPageSettings = Pick<
   | "productsIntro"
   | "productsSeoTitle"
   | "productsSeoDescription"
+  | "productSizeCatalog"
+  | "productSizeDisplayStyle"
 >;
 
 export type AboutPageSettings = Pick<

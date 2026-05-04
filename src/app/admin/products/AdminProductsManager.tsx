@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/toast";
+import { formatRs } from "@/lib/format-currency";
 
 type Product = {
   _id: string;
@@ -162,7 +163,7 @@ export function AdminProductsManager() {
                   {product.category}
                 </p>
                 <p className="text-sm font-semibold text-[var(--accent)]">
-                  ${product.price.toFixed(2)}
+                  {formatRs(product.price)}
                 </p>
 
                 <div className="flex items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-[var(--paper)] p-2">

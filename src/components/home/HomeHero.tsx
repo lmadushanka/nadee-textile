@@ -6,6 +6,8 @@ import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react
 import type { HomeHeroSettings } from "@/lib/site-settings-defaults";
 
 const SLIDE_INTERVAL_MS = 5500;
+/** Replay eyebrow line + per-letter animation on this cadence (matches slide rotation). */
+const EYEBROW_REPLAY_INTERVAL_MS = SLIDE_INTERVAL_MS;
 
 function subscribePrefersReducedMotion(onChange: () => void) {
   if (typeof window === "undefined") return () => {};
@@ -34,7 +36,7 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white transition hover:bg-white/20"
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white transition-all duration-300 ease-out hover:scale-110 hover:-rotate-6 hover:border-white/45 hover:bg-white/25 hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] active:scale-95"
     >
       {children}
     </a>
@@ -73,6 +75,26 @@ function SocialIconLinks() {
 
 type Props = HomeHeroSettings;
 
+function HeroEyebrowLetters({ text, motionOk }: { text: string; motionOk: boolean }) {
+  if (!motionOk) {
+    return <>{text}</>;
+  }
+  const chars = Array.from(text);
+  return (
+    <>
+      {chars.map((ch, i) => (
+        <span
+          key={`eyebrow-${i}`}
+          className="nadee-hero-eyebrow-char"
+          style={{ animationDelay: `${0.22 + i * 0.036}s` }}
+        >
+          {ch === " " ? "\u00a0" : ch}
+        </span>
+      ))}
+    </>
+  );
+}
+
 export function HomeHero({
   heroEyebrow,
   heroTitlePrimary,
@@ -83,6 +105,7 @@ export function HomeHero({
   const slides = heroSlides.length > 0 ? heroSlides : [];
   const slidesKey = slides.map((s) => `${s.src}|${s.alt}`).join(";");
   const [active, setActive] = useState(0);
+  const [eyebrowReplayKey, setEyebrowReplayKey] = useState(0);
   const prefersReducedMotion = useSyncExternalStore(
     subscribePrefersReducedMotion,
     getPrefersReducedMotionSnapshot,
@@ -102,9 +125,30 @@ export function HomeHero({
     return () => window.clearInterval(id);
   }, [motionOk, slides.length, slidesKey]);
 
+  useEffect(() => {
+    setEyebrowReplayKey(0);
+  }, [heroEyebrow]);
+
+  useEffect(() => {
+    const trimmed = heroEyebrow.trim();
+    if (!motionOk || trimmed.length === 0) return;
+    const id = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      setEyebrowReplayKey((k) => k + 1);
+    }, EYEBROW_REPLAY_INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, [motionOk, heroEyebrow]);
+
   if (slides.length === 0) {
     return null;
   }
+
+  const eyebrowText = heroEyebrow.trim();
+  const showEyebrow = eyebrowText.length > 0;
+  const staggerTitle = showEyebrow ? "nadee-hero-s-2" : "nadee-hero-s-1";
+  const staggerSub = showEyebrow ? "nadee-hero-s-3" : "nadee-hero-s-2";
+  const staggerCta = showEyebrow ? "nadee-hero-s-4" : "nadee-hero-s-3";
+  const staggerMobile = showEyebrow ? "nadee-hero-s-5" : "nadee-hero-s-4";
 
   return (
     <section className="relative isolate min-h-[100svh] w-full max-w-none overflow-hidden bg-zinc-900 text-white">
@@ -120,7 +164,9 @@ export function HomeHero({
               src={slide.src}
               alt={slide.alt}
               fill
-              className="object-cover object-center"
+              className={`object-cover object-center ${
+                motionOk ? "transition-transform duration-[12s] ease-out" : ""
+              } ${motionOk && i === active ? "scale-[1.06]" : "scale-100"}`}
               sizes="100vw"
               priority={i === 0}
               quality={85}
@@ -138,38 +184,63 @@ export function HomeHero({
       <div className="relative z-10 flex min-h-[100svh] flex-col">
         <div className="flex flex-1 flex-col px-4 pb-10 pt-24 sm:px-6 sm:pb-14 sm:pt-28 lg:px-8 lg:pb-16 lg:pt-32 xl:px-12 2xl:px-16">
           <div className="relative grid w-full max-w-none flex-1 grid-cols-1 gap-10 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-8 xl:gap-12">
-            <div className="w-full min-w-0 max-w-none lg:py-6">
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/95 backdrop-blur-sm sm:text-[11px]">
-                <span
-                  className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]"
-                  aria-hidden
-                />
-                {heroEyebrow}
-              </p>
-              <h1 className="mt-6 font-sans text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl xl:text-[3.5rem]">
-                {heroTitlePrimary}
+            <div className={`w-full min-w-0 max-w-none lg:py-6${motionOk ? " nadee-hero-stagger" : ""}`}>
+              {showEyebrow ? (
+                <div className="nadee-hero-s-1">
+                  <div
+                    key={motionOk ? eyebrowReplayKey : "eyebrow-static"}
+                    className="flex min-h-[2.75rem] flex-col"
+                  >
+                    <div
+                      className={`nadee-hero-eyebrow-line ${
+                        motionOk ? "nadee-hero-eyebrow-line--draw" : "nadee-hero-eyebrow-line--static"
+                      }`}
+                      aria-hidden
+                    />
+                    <p className="mt-3 inline-flex min-h-[2.25rem] items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white/95 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/12 hover:shadow-[0_0_28px_rgba(52,211,153,0.35)] sm:text-[11px]">
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)] transition-transform duration-500 hover:scale-125"
+                        aria-hidden
+                      />
+                      <span className="inline-flex flex-wrap">
+                        <HeroEyebrowLetters text={eyebrowText} motionOk={motionOk} />
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+              <h1
+                className={`mt-6 font-sans text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl xl:text-[3.5rem] ${staggerTitle}`}
+              >
+                <span className="inline-block transition-[transform,opacity] duration-500 ease-out hover:translate-x-0.5">
+                  {heroTitlePrimary}
+                </span>
                 <br />
-                <span className="text-white">{heroTitleAccent}</span>
+                <span className="inline-block text-white transition-[transform,letter-spacing] duration-500 ease-out hover:translate-x-1 hover:tracking-wide">
+                  {heroTitleAccent}
+                </span>
               </h1>
-              <p className="mt-6 max-w-none whitespace-pre-line text-sm leading-relaxed text-zinc-200 sm:text-base">
+              <p
+                className={`mt-6 max-w-none whitespace-pre-line text-sm leading-relaxed text-zinc-200 sm:text-base ${staggerSub}`}
+              >
                 {heroSubtitle}
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className={`mt-8 flex flex-wrap items-center gap-3 ${staggerCta}`}>
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center rounded-full bg-[#f5e000] px-7 py-3 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-lg transition hover:bg-[#edd800]"
+                  className="inline-flex items-center justify-center rounded-full bg-[#f5e000] px-7 py-3 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-lg transition-all duration-500 ease-out hover:scale-[1.04] hover:bg-[#ffef3a] hover:shadow-[0_12px_40px_rgba(245,224,0,0.45)] active:scale-[0.98]"
                 >
                   Shop collection
                 </Link>
                 <Link
                   href="/about"
-                  className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition-all duration-500 ease-out hover:scale-[1.03] hover:border-white/70 hover:bg-white/15 hover:shadow-[0_8px_32px_rgba(255,255,255,0.12)] active:scale-[0.98]"
                 >
                   Our story
                 </Link>
               </div>
 
-              <div className="mt-10 flex items-center gap-3 lg:hidden">
+              <div className={`mt-10 flex items-center gap-3 lg:hidden ${staggerMobile}`}>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
                   Follow
                 </p>
@@ -179,7 +250,9 @@ export function HomeHero({
               </div>
             </div>
 
-            <div className="hidden flex-col items-center gap-6 self-end pb-4 lg:flex lg:self-stretch lg:pb-8">
+            <div
+              className={`hidden flex-col items-center gap-6 self-end pb-4 lg:flex lg:self-stretch lg:pb-8${motionOk ? " nadee-hero-stagger-side" : ""}`}
+            >
               <div className="flex flex-col gap-3">
                 <SocialIconLinks />
               </div>
@@ -196,7 +269,7 @@ export function HomeHero({
           </div>
 
           <div
-            className="mt-auto flex w-full max-w-none items-center justify-between gap-4 pt-8"
+            className={`mt-auto flex w-full max-w-none items-center justify-between gap-4 pt-8${motionOk ? " nadee-hero-stagger-footer" : ""}`}
             role="tablist"
             aria-label="Hero slides"
           >
@@ -209,15 +282,15 @@ export function HomeHero({
                   aria-selected={i === active}
                   aria-label={`Slide ${i + 1}`}
                   onClick={() => setActive(i)}
-                  className={`h-1.5 rounded-full transition-all ${
+                  className={`h-1.5 rounded-full transition-all duration-500 ease-out ${
                     i === active
-                      ? "w-8 bg-[#f5e000]"
-                      : "w-2 bg-white/35 hover:bg-white/55"
+                      ? "w-8 bg-[#f5e000] shadow-[0_0_16px_rgba(245,224,0,0.55)]"
+                      : "w-2 bg-white/35 hover:w-3 hover:bg-white/70"
                   }`}
                 />
               ))}
             </div>
-            <p className="hidden text-[10px] font-medium uppercase tracking-[0.25em] text-white/50 sm:block">
+            <p className="nadee-hero-scroll-hint hidden text-[10px] font-medium uppercase tracking-[0.25em] text-white/60 sm:block">
               Scroll to explore
             </p>
           </div>

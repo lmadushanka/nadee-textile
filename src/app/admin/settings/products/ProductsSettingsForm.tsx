@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/components/toast";
 import {
   DEFAULT_SITE_SETTINGS,
+  PRODUCT_SIZE_DISPLAY_STYLES,
   type ResolvedSiteSettings,
 } from "@/lib/site-settings-defaults";
 
@@ -15,6 +16,8 @@ function productsDefaults(): Pick<
   | "productsIntro"
   | "productsSeoTitle"
   | "productsSeoDescription"
+  | "productSizeCatalog"
+  | "productSizeDisplayStyle"
 > {
   return {
     productsEyebrow: DEFAULT_SITE_SETTINGS.productsEyebrow,
@@ -23,6 +26,8 @@ function productsDefaults(): Pick<
     productsIntro: DEFAULT_SITE_SETTINGS.productsIntro,
     productsSeoTitle: DEFAULT_SITE_SETTINGS.productsSeoTitle,
     productsSeoDescription: DEFAULT_SITE_SETTINGS.productsSeoDescription,
+    productSizeCatalog: [...DEFAULT_SITE_SETTINGS.productSizeCatalog],
+    productSizeDisplayStyle: DEFAULT_SITE_SETTINGS.productSizeDisplayStyle,
   };
 }
 
@@ -150,6 +155,103 @@ export function ProductsSettingsForm() {
           maxLength={2000}
           required
         />
+      </div>
+
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--paper)]/40 p-4">
+        <p className="text-sm font-semibold text-[var(--ink)]">Size catalog</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">
+          Labels offered as checkboxes when you create a new product. The same order is used for
+          rows in the storefront size table. Empty rows are dropped when you save.
+        </p>
+        <div className="mt-3 overflow-hidden rounded-xl border border-[var(--border)] bg-white">
+          <table className="w-full border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border)] bg-[var(--paper)] text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                <th scope="col" className="px-3 py-2">
+                  Label
+                </th>
+                <th scope="col" className="w-24 px-2 py-2 text-right">
+                  {/* actions */}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {form.productSizeCatalog.map((label, index) => (
+                <tr key={`size-${index}`} className="border-b border-[var(--border)] last:border-b-0">
+                  <td className="p-2">
+                    <input
+                      type="text"
+                      value={label}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setForm((f) => ({
+                          ...f,
+                          productSizeCatalog: f.productSizeCatalog.map((s, i) =>
+                            i === index ? v : s,
+                          ),
+                        }));
+                      }}
+                      maxLength={32}
+                      className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-[var(--ink)] outline-none ring-[var(--accent-deep)]/20 focus:ring-2"
+                      placeholder="e.g. 32 or 3XL"
+                    />
+                  </td>
+                  <td className="p-2 text-right">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((f) => ({
+                          ...f,
+                          productSizeCatalog: f.productSizeCatalog.filter((_, i) => i !== index),
+                        }))
+                      }
+                      className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--ink)]"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <button
+          type="button"
+          onClick={() =>
+            setForm((f) => ({
+              ...f,
+              productSizeCatalog: [...f.productSizeCatalog, ""],
+            }))
+          }
+          className="mt-3 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-semibold text-[var(--ink)] hover:bg-[var(--paper)]"
+        >
+          Add size row
+        </button>
+      </div>
+
+      <div>
+        <p className="text-sm font-semibold text-[var(--ink)]">Storefront — size picker layout</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">
+          <span className="font-medium">Chips</span> is the default (pill buttons). Choose{" "}
+          <span className="font-medium">Table</span> for a row-based size list on product pages.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-4">
+          {PRODUCT_SIZE_DISPLAY_STYLES.map((style) => (
+            <label
+              key={style}
+              className="inline-flex cursor-pointer items-center gap-2 text-sm text-[var(--ink)]"
+            >
+              <input
+                type="radio"
+                name="productSizeDisplayStyle"
+                checked={form.productSizeDisplayStyle === style}
+                onChange={() => setForm((f) => ({ ...f, productSizeDisplayStyle: style }))}
+                className="h-4 w-4 accent-[var(--accent-deep)]"
+              />
+              <span className="font-medium capitalize">{style}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--paper)]/40 p-4">
